@@ -40,7 +40,7 @@ function Login(){
         <div className="text-center mb-3">
           <div
             className="d-inline-flex align-items-center justify-content-center rounded-3"
-            style={{ width: 40, height: 40, backgroundColor: "#1a3a5c" }}
+            style={{ width: 40, height: 40, backgroundColor: "#1a2a5e" }}
           >
             <i style={{color:"white"}} class="bi bi-person-circle"></i>
           </div>
@@ -54,7 +54,7 @@ function Login(){
             }`}
             style={{
               borderRadius: "8px",
-              backgroundColor: isLogin ? "#1a3a5c" : "transparent",
+              backgroundColor: isLogin ? "#1a2a5e" : "transparent",
               border: "none",
               fontSize: "0.9rem",
             }}
@@ -68,7 +68,7 @@ function Login(){
             }`}
             style={{
               borderRadius: "8px",
-              backgroundColor: !isLogin ? "#1a3a5c" : "transparent",
+              backgroundColor: !isLogin ? "#1a2a5e" : "transparent",
               border: "none",
               fontSize: "0.9rem",
             }}
@@ -79,7 +79,7 @@ function Login(){
         </div>
 
         
-        <h4 className="fw-bold text-center mb-1" style={{ color: "#1a3a5c" }}>
+        <h4 className="fw-bold text-center mb-1" style={{ color: "#1a2a5e" }}>
           {isLogin ? "Welcome back" : "Create an account"}
         </h4>
         <p className="text-center text-secondary mb-4" style={{ fontSize: "0.88rem" }}>
@@ -92,7 +92,7 @@ function Login(){
         <form onSubmit={handleSubmit} key={mode}>
           {!isLogin && (
             <div className="mb-3">
-              <label className="form-label fw-semibold" style={{ color: "#1a3a5c", fontSize: "0.85rem" }}>
+              <label className="form-label fw-semibold" style={{ color: "#1a2a5e", fontSize: "0.85rem" }}>
                 Full Name
               </label>
               <input
@@ -109,7 +109,7 @@ function Login(){
           )}
 
           <div className="mb-3">
-            <label className="form-label fw-semibold" style={{ color: "#1a3a5c", fontSize: "0.85rem" }}>
+            <label className="form-label fw-semibold" style={{ color: "#1a2a5e", fontSize: "0.85rem" }}>
               Email Address
             </label>
             <input
@@ -125,7 +125,7 @@ function Login(){
           </div>
 
           <div className="mb-3">
-            <label className="form-label fw-semibold" style={{ color: "#1a3a5c", fontSize: "0.85rem" }}>
+            <label className="form-label fw-semibold" style={{ color: "#1a2a5e", fontSize: "0.85rem" }}>
               Password
             </label>
             <input
@@ -142,7 +142,7 @@ function Login(){
 
           {!isLogin && (
             <div className="mb-3">
-              <label className="form-label fw-semibold" style={{ color: "#1a3a5c", fontSize: "0.85rem" }}>
+              <label className="form-label fw-semibold" style={{ color: "#1a2a5e", fontSize: "0.85rem" }}>
                 Confirm Password
               </label>
               <input
@@ -161,7 +161,7 @@ function Login(){
           <button
             type="submit"
             className="btn w-100 fw-semibold text-white mt-2"
-            style={{ backgroundColor: "#1a3a5c", borderRadius: "10px", padding: "0.65rem" }}
+            style={{ backgroundColor: "#1a2a5e", borderRadius: "10px", padding: "0.65rem" }}
           >
             {isLogin ? "Sign In" : "Create Account"}
           </button>
@@ -181,7 +181,7 @@ function Login(){
               Don't have an account?
               <button
                 className="btn btn-link p-0 fw-bold"
-                style={{ color: "#2a5298", fontSize: "0.86rem" }}
+                style={{ color: "#1a2a5e", fontSize: "0.86rem" }}
                 onClick={() => handleSwitch("register")}
               >
                 Register here
@@ -192,7 +192,7 @@ function Login(){
               Already have an account?
               <button
                 className="btn btn-link p-0 fw-bold"
-                style={{ color: "#2a5298", fontSize: "0.86rem" }}
+                style={{ color: "#1a2a5e", fontSize: "0.86rem" }}
                 onClick={() => handleSwitch("login")}
               >
                 Sign in
