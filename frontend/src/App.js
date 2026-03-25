@@ -1,17 +1,23 @@
+
+import React from "react";
 import logo from './logo.svg';
 import './App.css';
-import Login from './user_manegment/Login';
-import IntroSection from './component/IntroSection';
-import ProfilePage from './user_manegment/ProfilePage';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import IntroSection from "./pages/IntroSection";
+import Login from "./pages/Login";
+import TrendingSection from "./pages/TrendingSection"; 
+import Search from "./pages/Search";
 
 function App() {
   return (
     <>
-    <IntroSection></IntroSection>
-    <ProfilePage></ProfilePage>
-    <Login></Login>
-    </>
-  )
-}
+      <Routes>
+        <Route path="/" element={<IntroSection />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/trending" element={<TrendingSection />} />
+         <Route path="/search" element={<Search />} />
+      </Routes>
 
-export default App;
+    </>
+  );
+}export default App;
