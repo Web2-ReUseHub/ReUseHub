@@ -1,15 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
 import Login from './user_manegment/Login';
-import IntroSection from './component/IntroSection';
-import ProfilePage from './user_manegment/ProfilePage';
+import IntroSection from './components/IntroSection';
+import ProfilePage from './pages/profile/ProfilePage';
+import Navbar from './components/Nav';
+
 
 function App() {
   return (
     <>
-    <IntroSection></IntroSection>
-    <ProfilePage></ProfilePage>
-    <Login></Login>
+      <Navbar />
+      <ProfilePage />;
+
     </>
   )
 }
