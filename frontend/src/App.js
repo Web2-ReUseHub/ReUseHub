@@ -5,9 +5,9 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IntroSection from "./pages/IntroSection";
 import Login from "./pages/Login";
-import TrendingSection from "./pages/TrendingSection"; 
+import TrendingSection from "./pages/TrendingSection";
 import Search from "./pages/Search";
-
+import ProfileEditPage from "./pages/ProfileEditPage";
 function App() {
   return (
     <>
@@ -16,6 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/trending" element={<TrendingSection />} />
          <Route path="/search" element={<Search />} />
+          <Route path="/profile/edit" element={<ProfileEditPage />} />
       </Routes>
 
     </>
