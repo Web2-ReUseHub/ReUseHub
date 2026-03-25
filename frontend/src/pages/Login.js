@@ -1,5 +1,9 @@
+
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 function Login(){
+
+    
      const [mode, setMode] = useState("login");
   const [form, setForm] = useState({
     name: "",
@@ -9,7 +13,7 @@ function Login(){
   });
 
   const isLogin = mode === "login";
-
+  const navigate = useNavigate();
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -28,10 +32,32 @@ function Login(){
   };
 
   return (
+    
+      
+        
     <div
       className="min-vh-100 d-flex align-items-center justify-content-center"
       style={{ backgroundColor: "#eaf1fb" }}
     >
+     <div className="position-absolute top-0 start-0 m-3">
+  <button
+    className="btn rounded-circle d-flex align-items-center justify-content-center shadow"
+    style={{
+      backgroundColor: "#1a2a5e",
+      width: "55px",
+      height: "55px",
+      border: "none",
+      transition: "all 0.3s ease",
+    }}
+    onClick={() => navigate("/")}
+    onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
+    onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+  >
+    <i className="bi bi-arrow-left" style={{ color: "white", fontSize: "20px" }}></i>
+  </button>
+</div>
+
+
       <div
         className="card shadow-sm border-0 p-4"
         style={{ width: "100%", maxWidth: "420px", borderRadius: "16px" }}
