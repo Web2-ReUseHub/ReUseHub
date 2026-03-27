@@ -7,6 +7,7 @@ import IntroSection from "./pages/IntroSection";
 import Login from "./pages/Login";
 import TrendingSection from "./pages/TrendingSection"; 
 import Search from "./pages/Search";
+import AboutWebsite from "./pages/AboutWebsite";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/trending" element={<TrendingSection />} />
          <Route path="/search" element={<Search />} />
+          <Route path="/about" element={<AboutWebsite />} />
       </Routes>
 
     </>

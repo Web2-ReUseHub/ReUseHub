@@ -37,7 +37,7 @@ export default function Navbar({ showFull }) {
               <a className="nav-link me-3 fs-5" href="#">من نحن</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link me-3 fs-5" href="#">عن الموقع</a>
+              <a className="nav-link me-3 fs-5" href="/about">عن الموقع</a>
             </li>
           </ul>
 
