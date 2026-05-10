@@ -1,0 +1,92 @@
+.profile-box {
+   
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+      min-height: calc(100vh ); /* طول الشاشة ناقص ارتفاع الـ Navbar */
+    display: flex;
+    flex-direction: column;
+    
+   
+    overflow: hidden; 
+}
+
+.default-avatar {
+    width: 150px;
+    height: 150px;
+    background-color: #ddd;
+    border-radius: 50%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+
+.edit-profile-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    padding: 0;
+}
+
+.edit-profile-btn i {
+    font-size: 1.1rem;
+}
+
+.rating-stars {
+    color: #cba964;
+    font-size: 35px;
+    display: flex;
+    justify-content: center;
+    direction: ltr;
+
+}
+
+.rating-stars i {
+    margin-left: 4px;
+
+
+}
+
+.rating-number {
+
+    font-size: 35px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+}
+
+.create-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #f1f1f1;
+    font-size: 32px;
+    color: #03204c;
+    cursor: pointer;
+}
+
+.create-icon:hover {
+    background-color: #e9ecef;
+    transform: scale(1.05);
+}
+
+.create-post-card {
+    min-height: 200px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.create-post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.12);
+}

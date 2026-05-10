@@ -1,0 +1,70 @@
+/* استدعاء خط Cairo من Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+/* فرض الخط على كل العناصر بالموقع */
+* {
+  font-family: 'Cairo', sans-serif;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+.naivy {
+background-color:#1a2a5e;}
+.sidebar h5 {
+  color: #1a2a5e;
+}
+
+.sidebar label {
+  color: #1a2a5e;
+}
+
+.rating {
+  direction: ltr; /* عشان النجوم تبدأ من اليمين */
+  display: inline-flex;
+}
+
+.rating input {
+  display: none; /* نخفي الراديو */
+}
+
+.rating label {
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.rating input:checked ~ label {
+  color: gold; /* النجوم المختارة تصير ذهبية */
+}
+.sidebar {
+  height: 100vh;          /* طول الشاشة كامل */
+  overflow-y: auto;       /* سكرول داخلي */
+  position: sticky;
+  
+  right: 0;               /* إذا بدك يضل عاليمين */
+  width: 300px;           /* عرض ثابت للسايد بار */
+  z-index: 1000;          /* فوق باقي العناصر */
+}
+.container-fluid {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+.profile-icon {
+  font-size: 2rem;   /* حجم الأيقونة فقط */
+  line-height: 1;    /* يمنع تكبير ارتفاع النافبار */
+}
+.shop-icon{
+  font-size:1.5rem ;
+  position: relative;
+  top: -9px;               /* يرفعها لفوق شوي */
+}
+
