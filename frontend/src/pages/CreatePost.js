@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
+
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5004";
+
 const MAX_IMAGES = 5;
 const API_URL = "http://localhost:5004/used-items";
 const AI_URL = "http://localhost:5004/ai/generate-post";
@@ -17,14 +23,114 @@ function CreatePost() {
   const [shippingAvailable, setShippingAvailable] = useState(true);
   const [showPhone, setShowPhone] = useState(false);
   const [images, setImages] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef(null);
 
   const categories = ["لابتوب", "سماعات", "ساعة ذكية", "ملابس", "أحذية", "حقائب", "أخرى"];
   const conditions = ["جديد", "مستعمل - ممتاز", "مستعمل - جيد"];
+  const handleSubmit = async () => {
+  try {
+    setIsSubmitting(true);
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("يجب تسجيل الدخول أولاً");
+      navigate("/login");
+      return;
+    }
+
+    if (!title.trim()) {
+      alert("يرجى إدخال عنوان المنتج");
+      return;
+    }
+
+    if (!description.trim()) {
+      alert("يرجى إدخال وصف المنتج");
+      return;
+    }
+
+    if (!price || Number(price) <= 0) {
+      alert("يرجى إدخال سعر صحيح");
+      return;
+    }
+
+    // جلب المستخدم الحالي للحصول على user_id
+    const profileResponse = await axios.get(
+      `${API_BASE_URL}/user/profile/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const seller_id = profileResponse.data.user.user_id;
+
+    // دمج العنوان مع الوصف لأن قاعدة البيانات لا تحتوي على title
+    const finalDescription =
+      `العنوان: ${title}\n\nالوصف: ${description}`;
+
+    // مؤقتاً نستخدم cat_id ثابت
+    const cat_id = 1;
+
+    // إنشاء المنتج
+    await axios.post(
+      `${API_BASE_URL}/used-items`,
+      {
+        status: selectedCondition,
+        description: finalDescription,
+        price: parseFloat(price),
+        seller_id,
+        cat_id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("تم نشر المنتج بنجاح!");
+
+    // تنظيف الحقول
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setQuantity(1);
+    setSelectedCategory("لابتوب");
+    setSelectedCondition("جديد");
+    setPriceNegotiable(true);
+    setShippingAvailable(true);
+    setShowPhone(false);
+
+    images.forEach((image) => {
+      URL.revokeObjectURL(image.preview);
+    });
+
+    setImages([]);
+
+    // العودة إلى صفحة البروفايل
+    navigate("/profile");
+  } catch (error) {
+    console.error("Error creating post:", error);
+
+    const errorMessage =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "حدث خطأ أثناء إنشاء المنتج";
+
+    alert(errorMessage);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const categoryMap = {
     "لابتوب": 1, "سماعات": 2, "ساعة ذكية": 3,
@@ -288,6 +394,87 @@ function CreatePost() {
             </button>
 
           </div>
+
+
+          <div style={twoColumnRow}>
+            <div style={fieldBlock}>
+              <label style={label}>السعر</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="أدخل السعر"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                style={input}
+              />
+            </div>
+
+            <div style={fieldBlock}>
+              <label style={label}>الكمية</label>
+              <input
+                type="number"
+                min="1"
+                placeholder="1"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                style={input}
+              />
+            </div>
+          </div>
+
+          <div style={sectionCard}>
+            <div style={sectionHeadingRow}>
+              <h3 style={sectionTitle}>التصنيف</h3>
+              <span style={helperText}>اختر الفئة الأقرب لمنتجك</span>
+            </div>
+            <div style={chipGroup}>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                  style={selectedCategory === category ? activeChip : chip}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={sectionCard}>
+            <div style={sectionHeadingRow}>
+              <h3 style={sectionTitle}>الحالة</h3>
+              <span style={helperText}>كلما كان الوصف دقيقاً زادت الثقة</span>
+            </div>
+            <div style={chipGroup}>
+              {conditions.map((condition) => (
+                <button
+                  key={condition}
+                  type="button"
+                  onClick={() => setSelectedCondition(condition)}
+                  style={selectedCondition === condition ? activeChip : chip}
+                >
+                  {condition}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={toggleCard}>
+            <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
+            <Toggle text="الشحن متاح" value={shippingAvailable} setValue={setShippingAvailable} />
+            <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
+          </div>
+
+          <button
+  type="button"
+  style={submitBtn}
+  onClick={handleSubmit}
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "جاري النشر..." : "نشر المنتج"}
+</button>
+ 
         </div>
       </div>
   );
