@@ -142,7 +142,7 @@ export default function SidebarFilter() {
             </div>
             <div className="col-12 col-md-9">
               <div className=" my-4 d-flex justify-content-center">
-                <div className="input-group mb-4" style={{ width: "400px" }}>
+                <div dir="ltr" className="input-group mb-4" style={{ width: "400px"  }}>
                   <button
                     className="btn btn-primary d-flex align-items-center justify-content-center"
                     style={{
