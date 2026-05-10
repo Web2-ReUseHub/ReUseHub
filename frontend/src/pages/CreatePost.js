@@ -1,14 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-
-
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5004";
-
 const MAX_IMAGES = 5;
-const API_URL = "http://localhost:5004/used-items";
 const AI_URL = "http://localhost:5004/ai/generate-post";
 
 function CreatePost() {
@@ -24,117 +19,89 @@ function CreatePost() {
   const [showPhone, setShowPhone] = useState(false);
   const [images, setImages] = useState([]);
 
-  const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef(null);
 
   const categories = ["لابتوب", "سماعات", "ساعة ذكية", "ملابس", "أحذية", "حقائب", "أخرى"];
   const conditions = ["جديد", "مستعمل - ممتاز", "مستعمل - جيد"];
+
   const handleSubmit = async () => {
-  try {
-    setIsSubmitting(true);
+    try {
+      setIsSubmitting(true);
 
-    const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert("يجب تسجيل الدخول أولاً");
-      navigate("/login");
-      return;
-    }
-
-    if (!title.trim()) {
-      alert("يرجى إدخال عنوان المنتج");
-      return;
-    }
-
-    if (!description.trim()) {
-      alert("يرجى إدخال وصف المنتج");
-      return;
-    }
-
-    if (!price || Number(price) <= 0) {
-      alert("يرجى إدخال سعر صحيح");
-      return;
-    }
-
-    // جلب المستخدم الحالي للحصول على user_id
-    const profileResponse = await axios.get(
-      `${API_BASE_URL}/user/profile/me`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      if (!token) {
+        alert("يجب تسجيل الدخول أولاً");
+        navigate("/login");
+        return;
       }
-    );
 
-    const seller_id = profileResponse.data.user.user_id;
-
-    // دمج العنوان مع الوصف لأن قاعدة البيانات لا تحتوي على title
-    const finalDescription =
-      `العنوان: ${title}\n\nالوصف: ${description}`;
-
-    // مؤقتاً نستخدم cat_id ثابت
-    const cat_id = 1;
-
-    // إنشاء المنتج
-    await axios.post(
-      `${API_BASE_URL}/used-items`,
-      {
-        status: selectedCondition,
-        description: finalDescription,
-        price: parseFloat(price),
-        seller_id,
-        cat_id,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      if (!title.trim()) {
+        alert("يرجى إدخال عنوان المنتج");
+        return;
       }
-    );
 
-    alert("تم نشر المنتج بنجاح!");
+      if (!description.trim()) {
+        alert("يرجى إدخال وصف المنتج");
+        return;
+      }
 
-    // تنظيف الحقول
-    setTitle("");
-    setDescription("");
-    setPrice("");
-    setQuantity(1);
-    setSelectedCategory("لابتوب");
-    setSelectedCondition("جديد");
-    setPriceNegotiable(true);
-    setShippingAvailable(true);
-    setShowPhone(false);
+      if (!price || Number(price) <= 0) {
+        alert("يرجى إدخال سعر صحيح");
+        return;
+      }
 
-    images.forEach((image) => {
-      URL.revokeObjectURL(image.preview);
-    });
+      const profileResponse = await axios.get(
+        `${API_BASE_URL}/user/profile/me`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    setImages([]);
+      const seller_id = profileResponse.data.user.user_id;
+      const finalDescription = `العنوان: ${title}\n\nالوصف: ${description}`;
+      const cat_id = 1;
 
-    // العودة إلى صفحة البروفايل
-    navigate("/profile");
-  } catch (error) {
-    console.error("Error creating post:", error);
+      await axios.post(
+        `${API_BASE_URL}/used-items`,
+        {
+          status: selectedCondition,
+          description: finalDescription,
+          price: parseFloat(price),
+          seller_id,
+          cat_id,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    const errorMessage =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      "حدث خطأ أثناء إنشاء المنتج";
+      alert("تم نشر المنتج بنجاح!");
 
-    alert(errorMessage);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      setTitle("");
+      setDescription("");
+      setPrice("");
+      setQuantity(1);
+      setSelectedCategory("لابتوب");
+      setSelectedCondition("جديد");
+      setPriceNegotiable(true);
+      setShippingAvailable(true);
+      setShowPhone(false);
 
-  const categoryMap = {
-    "لابتوب": 1, "سماعات": 2, "ساعة ذكية": 3,
-    "ملابس": 4, "أحذية": 5, "حقائب": 6, "أخرى": 7
+      images.forEach((image) => URL.revokeObjectURL(image.preview));
+      setImages([]);
+
+      navigate("/profile");
+    } catch (error) {
+      console.error("Error creating post:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "حدث خطأ أثناء إنشاء المنتج";
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -150,7 +117,7 @@ function CreatePost() {
     const selectedFiles = files.slice(0, availableSlots);
     const newImages = selectedFiles.map((file) => ({
       file,
-      preview: URL.createObjectURL(file)
+      preview: URL.createObjectURL(file),
     }));
     setImages((prev) => [...prev, ...newImages]);
     e.target.value = "";
@@ -166,235 +133,163 @@ function CreatePost() {
     });
   };
 
-  const handleGenerateAI = async () => {
-    if (!title.trim()) return setError("اكتب عنوان المنتج أولاً عشان الـ AI يولّد وصف");
-    setError("");
-    setAiLoading(true);
+ const handleGenerateAI = async () => {
+  if (!title.trim()) {
+    return setError("اكتب عنوان المنتج أولاً عشان الـ AI يولّد وصف");
+  }
+
+  setError("");
+  setAiLoading(true);
+
+  try {
+    let imageBase64 = null;
+
+    if (images.length > 0) {
+      const file = images[0].file;
+
+      imageBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = reader.result;
+          const base64 = result.split(",")[1];
+          resolve(base64);
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const response = await fetch(AI_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: title.trim(),
+        category: selectedCategory,
+        condition: selectedCondition,
+        imageBase64,
+      }),
+    });
+
+    // اقرأ الرد كنص أولاً
+    const responseText = await response.text();
+
+    // اطبع الرد في الـ Console لتسهيل التشخيص
+    console.log("AI Raw Response:", responseText);
+
+    let data;
 
     try {
-      let imageBase64 = null;
-
-      if (images.length > 0) {
-        const file = images[0].file;
-        imageBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result.split(",")[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
-
-      const response = await fetch(AI_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          category: selectedCategory,
-          condition: selectedCondition,
-          imageBase64: imageBase64
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || "فشل الـ AI");
-
-      setDescription(data.result);
-    } catch (err) {
-      setError("فشل توليد الوصف: " + err.message);
-    } finally {
-      setAiLoading(false);
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      throw new Error(
+        "الخادم لم يرجع JSON صحيح. تحقق من Console و Backend."
+      );
     }
-  };
 
-  const handleSubmit = async () => {
-    setError("");
-    if (!title.trim()) return setError("يرجى إدخال عنوان المنتج");
-    if (!description.trim()) return setError("يرجى إدخال وصف المنتج");
-    if (!price || isNaN(price) || Number(price) <= 0) return setError("يرجى إدخال سعر صحيح");
-
-    setLoading(true);
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim(),
-          price: Number(price),
-          quantity: Number(quantity),
-          status: selectedCondition,
-          cat_id: categoryMap[selectedCategory] || 7,
-          seller_id: 1,
-          price_negotiable: priceNegotiable,
-          shipping_available: shippingAvailable,
-          show_phone: showPhone
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "حدث خطأ أثناء النشر");
-
-      alert("✅ تم نشر المنتج بنجاح!");
-      navigate("/profile");
-    } catch (err) {
-      setError(err.message || "تعذّر الاتصال بالسيرفر");
-    } finally {
-      setLoading(false);
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "فشل توليد الوصف");
     }
-  };
+
+    setDescription(data.result);
+  } catch (err) {
+    console.error("AI Generate Error:", err);
+    setError("فشل توليد الوصف: " + err.message);
+  } finally {
+    setAiLoading(false);
+  }
+};
 
   return (
-      <div style={page}>
-        <div style={card}>
-          <button
-              className="btn position-absolute top-0 start-0 m-3 rounded-circle shadow d-flex align-items-center justify-content-center"
-              style={{ width: 48, height: 48, backgroundColor: "#1a2a5e", border: "none", zIndex: 10 }}
-              onClick={() => navigate("/profile")}
-          >
-            <i className="bi bi-arrow-left" style={{ color: "white", fontSize: 18 }} />
-          </button>
+    <div style={page}>
+      <div style={card}>
+        <button
+          className="btn position-absolute top-0 start-0 m-3 rounded-circle shadow d-flex align-items-center justify-content-center"
+          style={{ width: 48, height: 48, backgroundColor: "#1a2a5e", border: "none", zIndex: 10 }}
+          onClick={() => navigate("/profile")}
+        >
+          <i className="bi bi-arrow-left" style={{ color: "white", fontSize: 18 }} />
+        </button>
 
-          <div style={headerBlock}>
-            <h2 style={titleStyle}>إنشاء منشور جديد</h2>
-            <p style={subtitle}>رتّب بيانات المنتج بشكل واضح، وأضف صوراً جذابة لتزيد فرصة البيع بشكل أسرع.</p>
+        <div style={headerBlock}>
+          <h2 style={titleStyle}>إنشاء منشور جديد</h2>
+          <p style={subtitle}>رتّب بيانات المنتج بشكل واضح، وأضف صوراً جذابة لتزيد فرصة البيع بشكل أسرع.</p>
+        </div>
+
+        <div style={formGrid}>
+
+          <div style={fieldBlock}>
+            <label style={label}>عنوان المنتج</label>
+            <input
+              placeholder="مثال: لابتوب Dell Latitude بحالة ممتازة"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              style={input}
+            />
           </div>
 
-          <div style={formGrid}>
-
-            <div style={fieldBlock}>
-              <label style={label}>عنوان المنتج</label>
-              <input
-                  placeholder="مثال: لابتوب Dell Latitude بحالة ممتازة"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  style={input}
-              />
+          <div style={fieldBlock}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label style={label}>وصف المنتج</label>
+              <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
+                {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
+              </button>
             </div>
-
-            <div style={fieldBlock}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <label style={label}>وصف المنتج</label>
-                <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
-                  {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
-                </button>
-              </div>
-              <textarea
-                  placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  style={textarea}
-              />
-              {images.length > 0 && (
-                  <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>
-                    💡 الـ AI سيحلل الصورة الأولى تلقائياً
-                  </p>
-              )}
-            </div>
-
-            <div style={uploadSection}>
-              <div style={uploadHeader}>
-                <div>
-                  <h3 style={sectionTitle}>صور المنتج</h3>
-                  <p style={sectionHint}>يمكنك رفع حتى {MAX_IMAGES} صور. يفضّل اختيار صور واضحة ومضيئة.</p>
-                </div>
-                <span style={counterBadge}>{images.length}/{MAX_IMAGES}</span>
-              </div>
-
-              <div onClick={openFilePicker} style={uploadBox} role="button" tabIndex={0}>
-                <div style={uploadIcon}>+</div>
-                <div style={uploadTextWrap}>
-                  <strong style={uploadTitle}>اسحب الصور هنا أو اضغط للاختيار</strong>
-                  <span style={uploadSubtitle}>PNG, JPG, WEBP - الصورة الأولى ستظهر كصورة رئيسية للإعلان</span>
-                </div>
-                <button type="button" style={uploadAction}>اختيار الصور</button>
-              </div>
-
-              <input
-                  type="file" multiple accept="image/*"
-                  ref={fileInputRef} onChange={handleImageChange}
-                  style={{ display: "none" }}
-              />
-
-              {images.length > 0 && (
-                  <div style={imageGrid}>
-                    {images.map((img, index) => (
-                        <div key={img.preview} style={imageCard}>
-                          {index === 0 && <span style={mainImageBadge}>الرئيسية</span>}
-                          <img src={img.preview} alt={`صورة المنتج ${index + 1}`} style={previewImg} />
-                          <button type="button" onClick={() => removeImage(index)} style={removeBtn}>حذف</button>
-                        </div>
-                    ))}
-                  </div>
-              )}
-            </div>
-
-            <div style={twoColumnRow}>
-              <div style={fieldBlock}>
-                <label style={label}>السعر</label>
-                <input
-                    type="number" min="0" placeholder="أدخل السعر"
-                    value={price} onChange={(e) => setPrice(e.target.value)} style={input}
-                />
-              </div>
-              <div style={fieldBlock}>
-                <label style={label}>الكمية</label>
-                <input
-                    type="number" min="1" placeholder="1"
-                    value={quantity} onChange={(e) => setQuantity(e.target.value)} style={input}
-                />
-              </div>
-            </div>
-
-            <div style={sectionCard}>
-              <div style={sectionHeadingRow}>
-                <h3 style={sectionTitle}>التصنيف</h3>
-                <span style={helperText}>اختر الفئة الأقرب لمنتجك</span>
-              </div>
-              <div style={chipGroup}>
-                {categories.map((category) => (
-                    <button key={category} type="button"
-                            onClick={() => setSelectedCategory(category)}
-                            style={selectedCategory === category ? activeChip : chip}>
-                      {category}
-                    </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={sectionCard}>
-              <div style={sectionHeadingRow}>
-                <h3 style={sectionTitle}>الحالة</h3>
-                <span style={helperText}>كلما كان الوصف دقيقاً زادت الثقة</span>
-              </div>
-              <div style={chipGroup}>
-                {conditions.map((condition) => (
-                    <button key={condition} type="button"
-                            onClick={() => setSelectedCondition(condition)}
-                            style={selectedCondition === condition ? activeChip : chip}>
-                      {condition}
-                    </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={toggleCard}>
-              <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
-              <Toggle text="الشحن متاح" value={shippingAvailable} setValue={setShippingAvailable} />
-              <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
-            </div>
-
-            {error && (
-                <div style={errorBox}>⚠️ {error}</div>
+            <textarea
+              placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={textarea}
+            />
+            {images.length > 0 && (
+              <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>
+                💡 الـ AI سيحلل الصورة الأولى تلقائياً
+              </p>
             )}
-
-            <button type="button" onClick={handleSubmit}
-                    style={{ ...submitBtn, opacity: loading ? 0.7 : 1 }}
-                    disabled={loading}>
-              {loading ? "جارٍ النشر..." : "نشر المنتج"}
-            </button>
-
           </div>
 
+          <div style={uploadSection}>
+            <div style={uploadHeader}>
+              <div>
+                <h3 style={sectionTitle}>صور المنتج</h3>
+                <p style={sectionHint}>يمكنك رفع حتى {MAX_IMAGES} صور. يفضّل اختيار صور واضحة ومضيئة.</p>
+              </div>
+              <span style={counterBadge}>{images.length}/{MAX_IMAGES}</span>
+            </div>
+
+            <div onClick={openFilePicker} style={uploadBox} role="button" tabIndex={0}>
+              <div style={uploadIcon}>+</div>
+              <div style={uploadTextWrap}>
+                <strong style={uploadTitle}>اسحب الصور هنا أو اضغط للاختيار</strong>
+                <span style={uploadSubtitle}>PNG, JPG, WEBP - الصورة الأولى ستظهر كصورة رئيسية للإعلان</span>
+              </div>
+              <button type="button" style={uploadAction}>اختيار الصور</button>
+            </div>
+
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              style={{ display: "none" }}
+            />
+
+            {images.length > 0 && (
+              <div style={imageGrid}>
+                {images.map((img, index) => (
+                  <div key={img.preview} style={imageCard}>
+                    {index === 0 && <span style={mainImageBadge}>الرئيسية</span>}
+                    <img src={img.preview} alt={`صورة المنتج ${index + 1}`} style={previewImg} />
+                    <button type="button" onClick={() => removeImage(index)} style={removeBtn}>حذف</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div style={twoColumnRow}>
             <div style={fieldBlock}>
@@ -408,7 +303,6 @@ function CreatePost() {
                 style={input}
               />
             </div>
-
             <div style={fieldBlock}>
               <label style={label}>الكمية</label>
               <input
@@ -466,28 +360,31 @@ function CreatePost() {
             <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
           </div>
 
+          {error && <div style={errorBox}>⚠️ {error}</div>}
+
           <button
-  type="button"
-  style={submitBtn}
-  onClick={handleSubmit}
-  disabled={isSubmitting}
->
-  {isSubmitting ? "جاري النشر..." : "نشر المنتج"}
-</button>
- 
+            type="button"
+            onClick={handleSubmit}
+            style={{ ...submitBtn, opacity: isSubmitting ? 0.7 : 1 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "جارٍ النشر..." : "نشر المنتج"}
+          </button>
+
         </div>
       </div>
+    </div>
   );
 }
 
 function Toggle({ text, value, setValue }) {
   return (
-      <div style={toggleRow}>
-        <div><span style={toggleLabel}>{text}</span></div>
-        <button type="button" onClick={() => setValue(!value)} style={value ? toggleOn : toggleOff}>
-          <span style={{ ...circle, right: value ? "29px" : "4px" }} />
-        </button>
-      </div>
+    <div style={toggleRow}>
+      <div><span style={toggleLabel}>{text}</span></div>
+      <button type="button" onClick={() => setValue(!value)} style={value ? toggleOn : toggleOff}>
+        <span style={{ ...circle, right: value ? "29px" : "4px" }} />
+      </button>
+    </div>
   );
 }
 

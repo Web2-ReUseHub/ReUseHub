@@ -1,13 +1,10 @@
 {
   "development": {
     "username": "root",
-<<<<<<< HEAD
-    "password": "123456",
-    "database": "project_db",
-=======
-    "password": "12345678",
-    "database": "web2",
->>>>>>> b32771a (Connect CreatePost page to backend using Axios and JWT to save products to the database)
+
+    "password": "mahadham123654@",
+    "database": "reusehub",
+
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
