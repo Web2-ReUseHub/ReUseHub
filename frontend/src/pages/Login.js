@@ -39,7 +39,7 @@ function Login() {
           password: form.password,
         }
       : {
-          name: form.name,
+          f_name: form.name,
           email: form.email,
           password: form.password,
         };

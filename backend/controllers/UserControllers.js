@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const SECRET = "***REMOVED***";
 
-// عرض الملف الشخصي
+
 exports.profile = async (req, res) => {
   try {
     res.json({
@@ -16,7 +16,7 @@ exports.profile = async (req, res) => {
   }
 };
 
-// جلب جميع المستخدمين
+
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await db.User.findAll({
@@ -29,7 +29,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// جلب مستخدم حسب الـ ID
+
 exports.getUserById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -48,7 +48,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// تسجيل مستخدم جديد
+
 exports.register = async (req, res) => {
   try {
     console.log('REGISTER body:', req.body);
@@ -107,7 +107,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// تسجيل الدخول
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
