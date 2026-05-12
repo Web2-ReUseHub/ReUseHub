@@ -2,8 +2,8 @@
   "development": {
     "username": "root",
 
-    "password": "mahadham123654@",
-    "database": "reusehub",
+    "password": "***REMOVED***",
+    "database": "reuse_hub",
 
     "host": "127.0.0.1",
     "dialect": "mysql"

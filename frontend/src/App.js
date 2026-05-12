@@ -9,6 +9,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import CreatePost from "./pages/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Products from "./pages/Products";
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
         element={
           <ProtectedRoute>
             <CreatePost />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/products"
+        element={
+          <ProtectedRoute>
+            <Products />
           </ProtectedRoute>
         }
       />
