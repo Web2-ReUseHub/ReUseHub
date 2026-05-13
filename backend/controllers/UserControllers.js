@@ -156,30 +156,39 @@ exports.getUserStats = async (req, res) => {
   try {
     const id = req.params.id;
 
-
     const totalPosts = await db.UsedItem.count({
       where: { seller_id: id }
     });
 
 
-
     const completedDeals = await db.UsedItem.count({
       where: {
         seller_id: id,
-        status: 'sold'
+        is_sold: 1
       }
     });
-
 
     const successRate = totalPosts > 0
       ? Math.round((completedDeals / totalPosts) * 100)
       : 0;
 
 
+    const ratingCount = await db.Req.count({
+      include: [{
+        model: db.UsedItem,
+        required: true,
+        where: { seller_id: id }
+      }],
+      where: {
+        rating: { [db.Sequelize.Op.ne]: null }
+      }
+    });
+
     res.json({
       completedDeals: completedDeals,
       successRate: successRate,
-      totalPosts: totalPosts
+      totalPosts: totalPosts,
+      ratingCount: ratingCount
     });
 
   } catch (error) {

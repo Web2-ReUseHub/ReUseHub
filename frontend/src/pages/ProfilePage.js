@@ -12,10 +12,11 @@ function ProfilePage() {
     const [userData, setUserData] = useState(null);
     const [userStats, setUserStats] = useState({
         completedDeals: 0,
-        successRate: 0
+        successRate: 0,
+        ratingCount: 0
     });
-    const userName = "يحيى حطاب";
-    const memberSince = 2023;
+
+
     const rating = 4;
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -24,7 +25,7 @@ function ProfilePage() {
 
 
 
-    const location = "طولكرم";
+
 
 
     function GoToEditProfile() {
@@ -75,14 +76,11 @@ function ProfilePage() {
 
             try {
                 const token = localStorage.getItem("token");
-
-
-                const resUser = await axios.get(`http://localhost:5004/user/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const resStats = await axios.get(`http://localhost:5004/user/stats/${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 });
-                setUserData(resUser.data);
-
-                const resStats = await axios.get(`http://localhost:5004/user/stats/${userId}`);
                 setUserStats(resStats.data);
 
             } catch (err) {
@@ -95,6 +93,11 @@ function ProfilePage() {
         }
 
     }, [userId]);
+
+
+    const joinDate = userData && userData.createdAt ? new Date(userData.createdAt) : null;
+    const memberSince = joinDate ? joinDate.getFullYear() : "2024";
+
 
     return (
         <>
@@ -152,7 +155,7 @@ function ProfilePage() {
                                 <div className="statistics-box mt-3">
                                     <div className="d-flex justify-content-center align-items-center flex-column">
                                         <div className="text-muted">عدد المقيميين</div>
-                                        <div className=" number-of-ratings fw-bold fs-4">25</div>
+                                        <div className=" number-of-ratings fw-bold fs-4">{userStats.ratingCount}</div>
                                     </div>
                                     <div className="row text-center mt-3">
                                         <div className="col">
