@@ -1,41 +1,109 @@
 import "../profile.css";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
- 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 
 function ProfilePage() {
-
+    const userString = localStorage.getItem('user');
+    const userObj = userString ? JSON.parse(userString) : null;
+    const userId = userObj ? userObj.user_id : null;
+    const [userData, setUserData] = useState(null);
+    const [userStats, setUserStats] = useState({
+        completedDeals: 0,
+        successRate: 0
+    });
     const userName = "يحيى حطاب";
     const memberSince = 2023;
     const rating = 4;
-
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     const navigate = useNavigate();
 
-    const completedDeals = 18;
-    const totalDeals = 20;
 
-    const successRate = Math.round((completedDeals / totalDeals) * 100);
 
     const location = "طولكرم";
 
-    
-     function GoToEditProfile() {
-       
-       navigate("/edit-profile");
+
+    function GoToEditProfile() {
+
+        navigate("/edit-profile");
     }
-     function GoToCreatePost() {
-       
-       navigate("/create-post");
+    function GoToCreatePost() {
+
+        navigate("/create-post");
     }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    useEffect(function () {
+
+        async function getProfileData() {
+            try {
+
+                const token = localStorage.getItem('token');
+
+
+                const response = await axios.get(`http://localhost:5004/user/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+
+                setUserData(response.data);
+
+            } catch (error) {
+
+                console.log("cannot get data " + error);
+            }
+        }
+
+        getProfileData();
+
+    }, [userId]);
+
+
+
+    useEffect(function () {
+
+
+        async function fetchProfileAndStats() {
+
+
+            try {
+                const token = localStorage.getItem("token");
+
+
+                const resUser = await axios.get(`http://localhost:5004/user/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUserData(resUser.data);
+
+                const resStats = await axios.get(`http://localhost:5004/user/stats/${userId}`);
+                setUserStats(resStats.data);
+
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
+        }
+
+        if (userId) {
+            fetchProfileAndStats();
+        }
+
+    }, [userId]);
 
     return (
         <>
+
+
+
             <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"></link>
             <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
-              <Navbar showFull={true} />
+                <Navbar showFull={true} />
 
                 <div className="container-fluid">
                     <div className="row">
@@ -47,9 +115,9 @@ function ProfilePage() {
                             <div className="profile-box ms-4">
                                 <div className="avatar-wrapper position-relative">
                                     <div className="avatar-placeholder d-flex justify-content-center align-items-center p-5" >
-                                     <span>
-                                       <i className="fa fa-user-circle" style={{ fontSize: "5rem", color: "#1a2a5e" }}></i>
-                                   </span>
+                                        <span>
+                                            <i className="fa fa-user-circle" style={{ fontSize: "5rem", color: "#1a2a5e" }}></i>
+                                        </span>
 
 
                                     </div>
@@ -64,7 +132,7 @@ function ProfilePage() {
 
 
                                 <div className="text-center mt-3 fw-bold fs-3">
-                                    {userName}
+                                    {userData !== null ? userData.f_name + " " + userData.l_name : "جاري التحميل..."}
                                 </div>
                                 <div className="rating-box">
                                     <span className="rating-number">{rating}</span>
@@ -88,18 +156,18 @@ function ProfilePage() {
                                     </div>
                                     <div className="row text-center mt-3">
                                         <div className="col">
-                                            <div className="fw-bold fs-4">{completedDeals}</div>
+                                            <div className="fw-bold fs-4">{userStats.completedDeals}</div>
                                             <div className="text-muted"> صفقة تمت بنجاح </div>
                                         </div>
                                         <div className="col">
-                                            <div className="fw-bold fs-4">{successRate}%</div>
+                                            <div className="fw-bold fs-4">{userStats.successRate}%</div>
                                             <div className="text-muted">نسبة نجاح الصفقات </div>
                                         </div>
                                     </div>
                                     <div className="row mt-4" >
                                         <div className="col d-flex flex-column text-center">
                                             <div className="text-muted">الموقع </div>
-                                            <div className="fw-bold fs-5">📍{location}</div>
+                                            <div className="fw-bold fs-5">📍{userData !== null ? userData.address : "..."}</div>
                                         </div>
                                         <div className="col d-flex flex-column text-center">
                                             <div className="text-muted">عضو منذ</div>
@@ -121,9 +189,9 @@ function ProfilePage() {
 
                                     <i className="bi bi-plus-lg"></i>
                                 </div>
-                                 <div>   
-                                           إنشاء منشور
-                                  </div>
+                                <div>
+                                    إنشاء منشور
+                                </div>
                             </div>
                         </div>
 

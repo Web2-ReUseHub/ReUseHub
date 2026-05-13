@@ -10,5 +10,6 @@ router.get("/profile/me", authMiddleware, userController.profile);
 
 router.get("/", authMiddleware, userController.getAllUsers);
 router.get("/:id", authMiddleware, userController.getUserById);
+router.get('/stats/:id', authMiddleware, userController.getUserStats);
 
 module.exports = router;

@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // User → UsedItem (البائع)
-      User.hasMany(models.UsedItem, { 
-        foreignKey: 'seller_id', 
-        as: 'posts' 
+      User.hasMany(models.UsedItem, {
+        foreignKey: 'seller_id',
+        as: 'posts'
       });
 
       // User ↔ UsedItem (Favorites)
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.init(
     {
-      user_id: {               
+      user_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -43,8 +43,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
-      tableName: 'user',   // لازم يطابق اسم الجدول عندك
-      timestamps: false    // إذا الجدول ما فيه createdAt و updatedAt
+      tableName: 'user',
+      timestamps: false
     }
   );
 

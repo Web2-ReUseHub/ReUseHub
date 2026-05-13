@@ -63,7 +63,7 @@ exports.register = async (req, res) => {
       address,
     } = req.body || {};
 
-    const firstNameValue = f_name ;
+    const firstNameValue = f_name;
     const lastNameValue = l_name || "";
 
     if (!firstNameValue || !email || !password) {
@@ -149,3 +149,45 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+exports.getUserStats = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+
+    const totalPosts = await db.UsedItem.count({
+      where: { seller_id: id }
+    });
+
+
+
+    const completedDeals = await db.UsedItem.count({
+      where: {
+        seller_id: id,
+        status: 'sold'
+      }
+    });
+
+
+    const successRate = totalPosts > 0
+      ? Math.round((completedDeals / totalPosts) * 100)
+      : 0;
+
+
+    res.json({
+      completedDeals: completedDeals,
+      successRate: successRate,
+      totalPosts: totalPosts
+    });
+
+  } catch (error) {
+    console.error("STATS ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
