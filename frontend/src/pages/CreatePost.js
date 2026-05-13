@@ -35,33 +35,52 @@ function CreatePost() {
       if (!description.trim()) { alert("يرجى إدخال وصف المنتج"); return; }
       if (!price || Number(price) <= 0) { alert("يرجى إدخال سعر صحيح"); return; }
 
-      const profileResponse = await axios.get(`${API_BASE_URL}/user/profile/me`, { headers: { Authorization: `Bearer ${token}` } });
+
+      if (!token) { alert("يجب تسجيل الدخول أولاً"); navigate("/login"); return; }
+      if (!title.trim()) { alert("يرجى إدخال عنوان المنتج"); return; }
+      if (!description.trim()) { alert("يرجى إدخال وصف المنتج"); return; }
+      if (!price || Number(price) <= 0) { alert("يرجى إدخال سعر صحيح"); return; }
+
+      const profileResponse = await axios.get(`${API_BASE_URL}/user/profile/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+
+
       const seller_id = profileResponse.data.user.user_id;
       const finalDescription = `العنوان: ${title}\n\nالوصف: ${description}`;
       const cat_id = 1;
 
-      const formData = new FormData();
-      formData.append('status', selectedCondition);
-      formData.append('description', finalDescription);
-      formData.append('price', parseFloat(price));
-      formData.append('seller_id', seller_id);
-      formData.append('cat_id', cat_id);
-      images.forEach((img) => formData.append('images', img.file));
 
-      await axios.post(`${API_BASE_URL}/used-items`, formData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
-      });
+      await axios.post(
+          `${API_BASE_URL}/used-items`,
+          {
+            status: selectedCondition,
+            description: finalDescription,
+            price: parseFloat(price),
+            seller_id,
+            cat_id,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       alert("تم نشر المنتج بنجاح!");
-      setTitle(""); setDescription(""); setPrice(""); setQuantity(1);
-      setSelectedCategory("لابتوب"); setSelectedCondition("جديد");
-      setPriceNegotiable(true); setShippingAvailable(true); setShowPhone(false);
+      setTitle("");
+      setDescription("");
+      setPrice("");
+      setQuantity(1);
+      setSelectedCategory("لابتوب");
+      setSelectedCondition("جديد");
+      setPriceNegotiable(true);
+      setShippingAvailable(true);
+      setShowPhone(false);
       images.forEach((image) => URL.revokeObjectURL(image.preview));
       setImages([]);
-      navigate("/products");
+      navigate("/profile");
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || "حدث خطأ أثناء إنشاء المنتج";
-      alert(errorMessage);
+      console.error("Error creating post:", error);
+      alert(error.response?.data?.message || error.response?.data?.error || "حدث خطأ أثناء إنشاء المنتج");
+
     } finally {
       setIsSubmitting(false);
     }
@@ -93,9 +112,14 @@ function CreatePost() {
 
   const handleGenerateAI = async () => {
     if (!title.trim()) return setError("اكتب عنوان المنتج أولاً عشان الـ AI يولّد وصف");
-    setError(""); setAiLoading(true);
+
+
+    setError("");
+    setAiLoading(true);
+
     try {
       let imageBase64 = null;
+
       if (images.length > 0) {
         const file = images[0].file;
         imageBase64 = await new Promise((resolve, reject) => {
@@ -105,17 +129,36 @@ function CreatePost() {
           reader.readAsDataURL(file);
         });
       }
+
+
       const response = await fetch(AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), category: selectedCategory, condition: selectedCondition, imageBase64 }),
+        body: JSON.stringify({
+          title: title.trim(),
+          category: selectedCategory,
+          condition: selectedCondition,
+          price: price,           // ✅ السعر يروح للـ AI
+          imageBase64,
+        }),
       });
+
       const responseText = await response.text();
+      console.log("AI Raw Response:", responseText);
+
       let data;
-      try { data = JSON.parse(responseText); } catch { throw new Error("الخادم لم يرجع JSON صحيح."); }
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error("الخادم لم يرجع JSON صحيح.");
+      }
+
       if (!response.ok || !data.success) throw new Error(data.message || "فشل توليد الوصف");
+
       setDescription(data.result);
     } catch (err) {
+      console.error("AI Generate Error:", err);
+
       setError("فشل توليد الوصف: " + err.message);
     } finally {
       setAiLoading(false);
@@ -123,116 +166,179 @@ function CreatePost() {
   };
 
   return (
-    <div style={page}>
-      <div style={card}>
-        <button className="btn position-absolute top-0 start-0 m-3 rounded-circle shadow d-flex align-items-center justify-content-center"
-          style={{ width: 48, height: 48, backgroundColor: "#1a2a5e", border: "none", zIndex: 10 }}
-          onClick={() => navigate("/profile")}>
-          <i className="bi bi-arrow-left" style={{ color: "white", fontSize: 18 }} />
-        </button>
-        <div style={headerBlock}>
-          <h2 style={titleStyle}>إنشاء منشور جديد</h2>
-          <p style={subtitle}>رتّب بيانات المنتج بشكل واضح، وأضف صوراً جذابة لتزيد فرصة البيع بشكل أسرع.</p>
-        </div>
-        <div style={formGrid}>
-          <div style={fieldBlock}>
-            <label style={label}>عنوان المنتج</label>
-            <input placeholder="مثال: لابتوب Dell Latitude بحالة ممتازة" value={title} onChange={(e) => setTitle(e.target.value)} style={input} />
+
+      <div style={page}>
+        <div style={card}>
+          <button
+              className="btn position-absolute top-0 start-0 m-3 rounded-circle shadow d-flex align-items-center justify-content-center"
+              style={{ width: 48, height: 48, backgroundColor: "#1a2a5e", border: "none", zIndex: 10 }}
+              onClick={() => navigate("/profile")}
+          >
+            <i className="bi bi-arrow-left" style={{ color: "white", fontSize: 18 }} />
+          </button>
+
+          <div style={headerBlock}>
+            <h2 style={titleStyle}>إنشاء منشور جديد</h2>
+            <p style={subtitle}>رتّب بيانات المنتج بشكل واضح، وأضف صوراً جذابة لتزيد فرصة البيع بشكل أسرع.</p>
           </div>
-          <div style={fieldBlock}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={label}>وصف المنتج</label>
-              <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
-                {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
-              </button>
+
+          <div style={formGrid}>
+
+            <div style={fieldBlock}>
+              <label style={label}>عنوان المنتج</label>
+              <input
+                  placeholder="مثال: لابتوب Dell Latitude بحالة ممتازة"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  style={input}
+              />
             </div>
-            <textarea placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري." value={description} onChange={(e) => setDescription(e.target.value)} style={textarea} />
-            {images.length > 0 && <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>💡 الـ AI سيحلل الصورة الأولى تلقائياً</p>}
-          </div>
-          <div style={uploadSection}>
-            <div style={uploadHeader}>
-              <div>
-                <h3 style={sectionTitle}>صور المنتج</h3>
-                <p style={sectionHint}>يمكنك رفع حتى {MAX_IMAGES} صور. يفضّل اختيار صور واضحة ومضيئة.</p>
+
+            <div style={twoColumnRow}>
+              <div style={fieldBlock}>
+                <label style={label}>السعر (شيكل)</label>
+                <input
+                    type="number"
+                    min="0"
+                    placeholder="أدخل السعر"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    style={input}
+                />
               </div>
-              <span style={counterBadge}>{images.length}/{MAX_IMAGES}</span>
-            </div>
-            <div onClick={openFilePicker} style={uploadBox} role="button" tabIndex={0}>
-              <div style={uploadIcon}>+</div>
-              <div style={uploadTextWrap}>
-                <strong style={uploadTitle}>اسحب الصور هنا أو اضغط للاختيار</strong>
-                <span style={uploadSubtitle}>PNG, JPG, WEBP - الصورة الأولى ستظهر كصورة رئيسية للإعلان</span>
+              <div style={fieldBlock}>
+                <label style={label}>الكمية</label>
+                <input
+                    type="number"
+                    min="1"
+                    placeholder="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    style={input}
+                />
               </div>
-              <button type="button" style={uploadAction}>اختيار الصور</button>
             </div>
-            <input type="file" multiple accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} />
-            {images.length > 0 && (
-              <div style={imageGrid}>
-                {images.map((img, index) => (
-                  <div key={img.preview} style={imageCard}>
-                    {index === 0 && <span style={mainImageBadge}>الرئيسية</span>}
-                    <img src={img.preview} alt={`صورة المنتج ${index + 1}`} style={previewImg} />
-                    <button type="button" onClick={() => removeImage(index)} style={removeBtn}>حذف</button>
+
+            <div style={fieldBlock}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label style={label}>وصف المنتج</label>
+                <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
+                  {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
+                </button>
+              </div>
+              <textarea
+                  placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  style={textarea}
+              />
+              {images.length > 0 && (
+                  <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>
+                    💡 الـ AI سيحلل الصورة الأولى تلقائياً ويضيف السعر بالوصف
+                  </p>
+              )}
+            </div>
+
+            <div style={uploadSection}>
+              <div style={uploadHeader}>
+                <div>
+                  <h3 style={sectionTitle}>صور المنتج</h3>
+                  <p style={sectionHint}>يمكنك رفع حتى {MAX_IMAGES} صور. يفضّل اختيار صور واضحة ومضيئة.</p>
+                </div>
+                <span style={counterBadge}>{images.length}/{MAX_IMAGES}</span>
+              </div>
+
+              <div onClick={openFilePicker} style={uploadBox} role="button" tabIndex={0}>
+                <div style={uploadIcon}>+</div>
+                <div style={uploadTextWrap}>
+                  <strong style={uploadTitle}>اسحب الصور هنا أو اضغط للاختيار</strong>
+                  <span style={uploadSubtitle}>PNG, JPG, WEBP - الصورة الأولى ستظهر كصورة رئيسية للإعلان</span>
+                </div>
+                <button type="button" style={uploadAction}>اختيار الصور</button>
+              </div>
+
+              <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+              />
+
+              {images.length > 0 && (
+                  <div style={imageGrid}>
+                    {images.map((img, index) => (
+                        <div key={img.preview} style={imageCard}>
+                          {index === 0 && <span style={mainImageBadge}>الرئيسية</span>}
+                          <img src={img.preview} alt={`صورة المنتج ${index + 1}`} style={previewImg} />
+                          <button type="button" onClick={() => removeImage(index)} style={removeBtn}>حذف</button>
+                        </div>
+                    ))}
                   </div>
+              )}
+            </div>
+
+            <div style={sectionCard}>
+              <div style={sectionHeadingRow}>
+                <h3 style={sectionTitle}>التصنيف</h3>
+                <span style={helperText}>اختر الفئة الأقرب لمنتجك</span>
+              </div>
+              <div style={chipGroup}>
+                {categories.map((category) => (
+                    <button key={category} type="button" onClick={() => setSelectedCategory(category)} style={selectedCategory === category ? activeChip : chip}>
+                      {category}
+                    </button>
                 ))}
               </div>
-            )}
+            </div>
+
+            <div style={sectionCard}>
+              <div style={sectionHeadingRow}>
+                <h3 style={sectionTitle}>الحالة</h3>
+                <span style={helperText}>كلما كان الوصف دقيقاً زادت الثقة</span>
+              </div>
+              <div style={chipGroup}>
+                {conditions.map((condition) => (
+                    <button key={condition} type="button" onClick={() => setSelectedCondition(condition)} style={selectedCondition === condition ? activeChip : chip}>
+                      {condition}
+                    </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={toggleCard}>
+              <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
+              <Toggle text="الشحن متاح" value={shippingAvailable} setValue={setShippingAvailable} />
+              <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
+            </div>
+
+            {error && <div style={errorBox}>⚠️ {error}</div>}
+
+            <button
+                type="button"
+                onClick={handleSubmit}
+                style={{ ...submitBtn, opacity: isSubmitting ? 0.7 : 1 }}
+                disabled={isSubmitting}
+            >
+              {isSubmitting ? "جارٍ النشر..." : "نشر المنتج"}
+            </button>
+
           </div>
-          <div style={twoColumnRow}>
-            <div style={fieldBlock}>
-              <label style={label}>السعر</label>
-              <input type="number" min="0" placeholder="أدخل السعر" value={price} onChange={(e) => setPrice(e.target.value)} style={input} />
-            </div>
-            <div style={fieldBlock}>
-              <label style={label}>الكمية</label>
-              <input type="number" min="1" placeholder="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} style={input} />
-            </div>
-          </div>
-          <div style={sectionCard}>
-            <div style={sectionHeadingRow}>
-              <h3 style={sectionTitle}>التصنيف</h3>
-              <span style={helperText}>اختر الفئة الأقرب لمنتجك</span>
-            </div>
-            <div style={chipGroup}>
-              {categories.map((category) => (
-                <button key={category} type="button" onClick={() => setSelectedCategory(category)} style={selectedCategory === category ? activeChip : chip}>{category}</button>
-              ))}
-            </div>
-          </div>
-          <div style={sectionCard}>
-            <div style={sectionHeadingRow}>
-              <h3 style={sectionTitle}>الحالة</h3>
-              <span style={helperText}>كلما كان الوصف دقيقاً زادت الثقة</span>
-            </div>
-            <div style={chipGroup}>
-              {conditions.map((condition) => (
-                <button key={condition} type="button" onClick={() => setSelectedCondition(condition)} style={selectedCondition === condition ? activeChip : chip}>{condition}</button>
-              ))}
-            </div>
-          </div>
-          <div style={toggleCard}>
-            <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
-            <Toggle text="الشحن متاح" value={shippingAvailable} setValue={setShippingAvailable} />
-            <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
-          </div>
-          {error && <div style={errorBox}>⚠️ {error}</div>}
-          <button type="button" onClick={handleSubmit} style={{ ...submitBtn, opacity: isSubmitting ? 0.7 : 1 }} disabled={isSubmitting}>
-            {isSubmitting ? "جارٍ النشر..." : "نشر المنتج"}
-          </button>
+
         </div>
       </div>
-    </div>
   );
 }
 
 function Toggle({ text, value, setValue }) {
   return (
-    <div style={toggleRow}>
-      <div><span style={toggleLabel}>{text}</span></div>
-      <button type="button" onClick={() => setValue(!value)} style={value ? toggleOn : toggleOff}>
-        <span style={{ ...circle, right: value ? "29px" : "4px" }} />
-      </button>
-    </div>
+      <div style={toggleRow}>
+        <span style={toggleLabel}>{text}</span>
+        <button type="button" onClick={() => setValue(!value)} style={value ? toggleOn : toggleOff}>
+          <span style={{ ...circle, right: value ? "29px" : "4px" }} />
+        </button>
+      </div>
   );
 }
 

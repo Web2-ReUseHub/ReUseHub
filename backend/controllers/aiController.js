@@ -6,53 +6,85 @@ const groq = new Groq({
 
 const generateDescription = async (req, res) => {
   try {
-    const { title, category, condition } = req.body;
+    const { title, category, condition, price, imageBase64 } = req.body;
 
-    const prompt = `
-اكتب وصفاً تسويقياً احترافياً وجذاباً باللغة العربية لمنتج مستعمل سيتم عرضه للبيع.
+    let messages;
+
+    if (imageBase64) {
+      // ✅ مع صورة — يحلل الصورة ويطلع مواصفات + وصف
+      messages = [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${imageBase64}`,
+              },
+            },
+            {
+              type: "text",
+              text: `أنت خبير في كتابة إعلانات المنتجات المستعملة باللغة العربية.
+
+حلّل هذه الصورة واكتب وصفاً تسويقياً احترافياً للمنتج.
 
 بيانات المنتج:
 - العنوان: ${title}
 - التصنيف: ${category}
 - الحالة: ${condition}
+- السعر: ${price ? price + " شيكل" : "لم يحدد"}
 
 التعليمات:
-- اكتب وصفاً واقعيًا ومقنعًا.
-- ركّز على جودة المنتج وحالته الجيدة.
-- اذكر أنه مناسب للاستخدام اليومي.
-- شجّع المشتري على التواصل.
-- لا تقل أنك لا تستطيع رؤية الصورة.
-- لا تذكر أنك نموذج ذكاء اصطناعي.
-- اجعل الوصف من 2 إلى 4 أسطر.
-`;
-
-    const completion = await groq.chat.completions.create({
-      messages: [
+- استخرج المواصفات الواضحة من الصورة (اللون، الحجم، الماركة، الحالة...)
+- اذكر السعر ${price ? price + " شيكل" : ""} في الوصف بشكل طبيعي
+- اكتب وصفاً جذاباً من 3 إلى 5 أسطر
+- شجّع المشتري على التواصل
+- لا تذكر أنك ذكاء اصطناعي`,
+            },
+          ],
+        },
+      ];
+    } else {
+      // ✅ بدون صورة — يولد وصف من العنوان فقط
+      messages = [
         {
           role: "system",
-          content:
-            "أنت خبير محترف في كتابة إعلانات المنتجات المستعملة باللغة العربية.",
+          content: "أنت خبير محترف في كتابة إعلانات المنتجات المستعملة باللغة العربية.",
         },
         {
           role: "user",
-          content: prompt,
+          content: `اكتب وصفاً تسويقياً احترافياً لمنتج مستعمل للبيع.
+
+بيانات المنتج:
+- العنوان: ${title}
+- التصنيف: ${category}
+- الحالة: ${condition}
+- السعر: ${price ? price + " شيكل" : "لم يحدد"}
+
+التعليمات:
+- اذكر السعر ${price ? price + " شيكل" : ""} في الوصف بشكل طبيعي
+- اكتب وصفاً واقعياً ومقنعاً من 3 إلى 5 أسطر
+- ركّز على جودة المنتج وحالته
+- شجّع المشتري على التواصل
+- لا تذكر أنك ذكاء اصطناعي`,
         },
-      ],
-      model: "llama-3.3-70b-versatile",
+      ];
+    }
+
+    const completion = await groq.chat.completions.create({
+      messages,
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       temperature: 0.7,
     });
 
     const result =
-      completion.choices[0]?.message?.content ||
-      "منتج بحالة ممتازة ومناسب للاستخدام اليومي. للتواصل والاستفسار يرجى المراسلة.";
+        completion.choices[0]?.message?.content ||
+        "منتج بحالة ممتازة ومناسب للاستخدام اليومي. للتواصل والاستفسار يرجى المراسلة.";
 
-    return res.json({
-      success: true,
-      result,
-    });
+    return res.json({ success: true, result });
+
   } catch (error) {
     console.error("AI Error:", error);
-
     return res.status(500).json({
       success: false,
       message: error.message || "حدث خطأ في الذكاء الاصطناعي.",
