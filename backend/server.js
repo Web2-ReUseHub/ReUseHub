@@ -3,6 +3,10 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 
+// استيراد sequelize من مجلد models
+// ملاحظة: إذا ملفاتك داخل مجلد models، هاد السطر هو الصح:
+const { sequelize } = require("./models");
+
 console.log("THIS IS THE REAL BACKEND FILE");
 
 app.use(express.json({ limit: "10mb" }));
@@ -20,6 +24,7 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
+// استدعاء الـ Routes
 const categoryRoutes = require("./routes/CategoryRoutes");
 const proImgRoutes = require("./routes/ProimgRoutes");
 const userRoutes = require("./routes/UserRoutes");
@@ -36,6 +41,17 @@ app.use("/favorites", favoriteRoutes);
 app.use("/used-items", usedItemRoutes);
 app.use("/ai", aiRoutes);
 
-app.listen(5004, () => {
-  console.log("Server is running on port 5004");
-});
+// عمل مزامنة مع قاعدة البيانات (بناء الجداول)
+// استخدمنا force: true لمرة واحدة فقط لتنظيف الجداول المعلقة
+sequelize.sync()
+    .then(() => {
+      console.log("✅ Tables recreated successfully on the new database!");
+
+      // تشغيل السيرفر بعد التأكد من المزامنة
+      app.listen(5004, () => {
+        console.log("Server is running on port 5004");
+      });
+    })
+    .catch(err => {
+      console.error("❌ Database sync error:", err);
+    });
