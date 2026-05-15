@@ -11,6 +11,7 @@ import CreatePost from "./pages/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import Dashbord from "./pages/Dashbord";
+import AdminRoute from "./components/AdminRoute";
 function App() {
   return (
     <Routes>
@@ -75,13 +76,15 @@ function App() {
 
 
        <Route
-        path="/dashbord"
-        element={
-          <ProtectedRoute>
-            <Dashbord/>
-          </ProtectedRoute>
-        }
-      />
+  path="/dashbord"
+  element={
+    <ProtectedRoute>
+      <AdminRoute>
+        <Dashbord />
+      </AdminRoute>
+    </ProtectedRoute>
+  }
+/>
       
     </Routes>
   );
