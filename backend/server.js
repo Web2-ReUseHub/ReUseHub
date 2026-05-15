@@ -32,6 +32,10 @@ const requestRoutes = require("./routes/ReqsRoutes");
 const favoriteRoutes = require("./routes/FavRoutes");
 const usedItemRoutes = require("./routes/UseditemRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const smartSearchRoutes = require("./routes/smartSearchRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+
+
 
 app.use("/Category", categoryRoutes);
 app.use("/pro-imgs", proImgRoutes);
@@ -40,6 +44,8 @@ app.use("/requests", requestRoutes);
 app.use("/favorites", favoriteRoutes);
 app.use("/used-items", usedItemRoutes);
 app.use("/ai", aiRoutes);
+app.use("/api", smartSearchRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 
 

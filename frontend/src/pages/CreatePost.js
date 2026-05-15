@@ -23,8 +23,42 @@ function CreatePost() {
 
   const fileInputRef = useRef(null);
 
-  const categories = ["لابتوب", "سماعات", "ساعة ذكية", "ملابس", "أحذية", "حقائب", "أخرى"];
-  const conditions = ["جديد", "مستعمل - ممتاز", "مستعمل - جيد"];
+  const categories = [
+  // 🔌 إلكترونيات
+  "لابتوب",
+  "شاشات",
+  "تلفونات",
+
+  // 🛋️ أثاث
+  "غرف نوم",
+  "غرف جلوس",
+  "طاولات",
+  "كراسي",
+  "مكاتب",
+  "خزائن",
+  "مكتبات/رفوف",
+  "أثاث خارجي",
+
+  // 🚗 سيارات
+  "BMW",
+  "Mercedes",
+  "Toyota",
+  "Ford",
+  "Honda",
+
+  // ⚙️ أجهزة كهربائية
+  "ثلاجات",
+  "غسالات",
+  "مكيفات هواء",
+  "أفران/مايكروويف",
+  "مكانس كهربائية",
+  "سخانات مياه",
+  "خلاطات/محضرات طعام",
+  "مكواة",
+  "تلفزيونات"
+];
+
+  const conditions = [ "مستعمل - ممتاز", "مستعمل - جيد"];
 
   const handleSubmit = async () => {
     try {
@@ -45,24 +79,27 @@ function CreatePost() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-
-
       const seller_id = profileResponse.data.user.user_id;
       const finalDescription = `العنوان: ${title}\n\nالوصف: ${description}`;
       const cat_id = 1;
 
+      const formData = new FormData();
+      formData.append("status", selectedCondition);
+      formData.append("description", finalDescription);
+      formData.append("price", parseFloat(price));
+      formData.append("seller_id", seller_id);
+      formData.append("cat_id", cat_id);
 
-      await axios.post(
-          `${API_BASE_URL}/used-items`,
-          {
-            status: selectedCondition,
-            description: finalDescription,
-            price: parseFloat(price),
-            seller_id,
-            cat_id,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-      );
+      images.forEach((image) => {
+        formData.append("images", image.file);
+      });
+
+      await axios.post(`${API_BASE_URL}/used-items`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       alert("تم نشر المنتج بنجاح!");
       setTitle("");
@@ -309,8 +346,6 @@ function CreatePost() {
 
             <div style={toggleCard}>
               <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
-              <Toggle text="الشحن متاح" value={shippingAvailable} setValue={setShippingAvailable} />
-              <Toggle text="إظهار رقم الهاتف" value={showPhone} setValue={setShowPhone} />
             </div>
 
             {error && <div style={errorBox}>⚠️ {error}</div>}

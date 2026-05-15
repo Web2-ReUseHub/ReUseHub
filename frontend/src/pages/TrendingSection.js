@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PostItem from "../components/postItem";
 import Navbar from "../components/Navbar";
-
+import Foterr from "../components/Foterr";
 const API_BASE_URL = "http://localhost:5004";
 
 const TrendingSection = () => {
@@ -38,22 +38,26 @@ const TrendingSection = () => {
           <span className="ms-2 fs-3">🔥</span>
         </div>
         <div className="row justify-content-center">
-          <div className="col-md-10 col-lg-8">
-            {loading ? (
-              <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status"></div>
-              </div>
-            ) : items.length > 0 ? (
-              items.map((item) => <PostItem key={item.used_item_id} data={item} />)
-            ) : (
-              <div className="text-center py-5">
-                <p className="text-muted fs-5">لا توجد منشورات رائجة لعرضها حالياً</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+  {loading ? (
+    <div className="text-center py-5">
+      <div className="spinner-border text-primary" role="status"></div>
     </div>
+  ) : items.length > 0 ? (
+    items.map((item) => (
+      <div className="col-md-6 col-lg-4 mb-4" key={item.used_item_id}>
+        <PostItem data={item} />
+      </div>
+    ))
+  ) : (
+    <div className="text-center py-5">
+      <p className="text-muted fs-5">لا توجد منشورات رائجة لعرضها حالياً</p>
+    </div>
+  )}
+</div>
+        </div>
+        <Foterr></Foterr>
+      </div>
+   
   );
 };
 

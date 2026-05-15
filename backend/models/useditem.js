@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       UsedItem.hasMany(models.ProImg, { foreignKey: 'used_item_id', as: 'images' });
       UsedItem.belongsTo(models.User, { foreignKey: 'seller_id', as: 'seller' });
       UsedItem.hasMany(models.Like, { foreignKey: 'used_item_id', as: 'likes' });
+      UsedItem.hasMany(models.Req, { foreignKey: 'used_item_id', as: 'requests' });
     }
   }
 

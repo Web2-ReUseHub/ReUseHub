@@ -37,8 +37,7 @@ const generateDescription = async (req, res) => {
 التعليمات:
 - استخرج المواصفات الواضحة من الصورة (اللون، الحجم، الماركة، الحالة...)
 - اذكر السعر ${price ? price + " شيكل" : ""} في الوصف بشكل طبيعي
-- اكتب وصفاً جذاباً من 3 إلى 5 أسطر
-- شجّع المشتري على التواصل
+-اكتب وصفاً واقعياً ومقنعاً من 1 إلى 2 أسطر فقط، لا تطوّل 
 - لا تذكر أنك ذكاء اصطناعي`,
             },
           ],
@@ -63,9 +62,8 @@ const generateDescription = async (req, res) => {
 
 التعليمات:
 - اذكر السعر ${price ? price + " شيكل" : ""} في الوصف بشكل طبيعي
-- اكتب وصفاً واقعياً ومقنعاً من 3 إلى 5 أسطر
+- اكتب وصفاً واقعياً ومقنعاً من 1 إلى 2 أسطر
 - ركّز على جودة المنتج وحالته
-- شجّع المشتري على التواصل
 - لا تذكر أنك ذكاء اصطناعي`,
         },
       ];
@@ -74,12 +72,11 @@ const generateDescription = async (req, res) => {
     const completion = await groq.chat.completions.create({
       messages,
       model: "meta-llama/llama-4-scout-17b-16e-instruct",
-      temperature: 0.7,
+      temperature: 0.5,
     });
 
     const result =
-        completion.choices[0]?.message?.content ||
-        "منتج بحالة ممتازة ومناسب للاستخدام اليومي. للتواصل والاستفسار يرجى المراسلة.";
+        completion.choices[0]?.message?.content;
 
     return res.json({ success: true, result });
 

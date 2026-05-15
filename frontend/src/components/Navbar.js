@@ -21,33 +21,33 @@ export default function Navbar({ showFull }) {
 
         
         <div className="collapse navbar-collapse" id="navbarMenu">
-          <ul className="navbar-nav ms-auto mb-2 mb-lg-0 me-5">
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
             <li className="nav-item">
-                  <a className="nav-link me-5 fs-5" href="/trending">الرئيسية</a>
-                </li>
+              <Link className="nav-link fs-5 px-2" to="/trending">الرئيسية</Link>
+            </li>
             {showFull && (
-              <>
-                
-                <li className="nav-item">
-                  <a className="nav-link me-3 fs-5" href="/search">البحث الذكي</a>
-                </li>
-              </>
+              <li className="nav-item">
+                <Link className="nav-link fs-5 px-2" to="/search">البحث الذكي</Link>
+              </li>
             )}
-            
+            {showFull && (
+              <li className="nav-item">
+                <Link className="nav-link fs-5 px-2" to="/dashbord">لوحة التحكم</Link>
+              </li>
+            )}
           </ul>
 
           {showFull && (
-            <ul className="navbar-nav me-auto ms-3">
-              <li className="nav-item ms-1 mt-2">
-                <a className="nav-link" href="#">
-                  <i class="bi bi-clipboard-check shop-icon"></i>
-
+            <ul className="navbar-nav mb-2 mb-lg-0 d-flex flex-column flex-lg-row align-items-start align-items-lg-center icon-nav">
+              <li className="nav-item icon-item">
+                <a className="nav-link p-0" href="#">
+                  <i className="bi bi-clipboard-check shop-icon"></i>
                 </a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/profile">
-                  <i className="bi bi-person-circle profile-icon"></i>
-                </a>
+              <li className="nav-item icon-item">
+                <Link className="nav-link p-0" to="/profile">
+                  <i className="bi bi-person-circle profile-icon ms-3"></i>
+                </Link>
               </li>
             </ul>
           )}

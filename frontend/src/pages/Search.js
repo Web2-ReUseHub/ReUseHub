@@ -2,20 +2,67 @@ import React from "react";
 import "../index.css";
 import Navbar from "../components/Navbar";
 import Categories from "../components/Categories";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import Foterr from "../components/Foterr";
+import axios from "axios";
+import PostItem from "../components/postItem";
+
+const API_BASE_URL = "http://localhost:5004";
 
 export default function SidebarFilter() {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    if (query.trim() !== "") {
-      navigate(`/search?query=${encodeURIComponent(query)}`);
+  const handleSearch = async () => {
+    const searchTerm = query.trim();
+    if (!searchTerm) {
+      setHasSearched(false);
+      setResults([]);
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/search`, { query: searchTerm });
+      let searchResults = response.data?.results || [];
+      if (!searchResults.length) {
+        const terms = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+        searchResults = allProducts.filter((item) => {
+          const text = `${item.title || ""} ${item.description || ""} ${item.status || ""}`.toLowerCase();
+          return terms.some((term) => text.includes(term));
+        });
+      }
+      setResults(searchResults);
+    } catch (error) {
+      console.error("Search failed:", error);
+      const terms = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+      const fallback = allProducts.filter((item) => {
+        const text = `${item.title || ""} ${item.description || ""} ${item.status || ""}`.toLowerCase();
+        return terms.some((term) => text.includes(term));
+      });
+      setResults(fallback);
+    } finally {
+      setHasSearched(true);
     }
   };
+
+// Fetch all products on component mount
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/used-items`);
+      setAllProducts(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
+  };
+
+  fetchProducts();
+}, []);
 
   return (
     <>
@@ -164,7 +211,25 @@ export default function SidebarFilter() {
                   />
                 </div>
               </div>
+              <div className="row gx-4 gy-4">
+                {((hasSearched ? results : allProducts) || []).length > 0 ? (
+                  (hasSearched ? results : allProducts).map((item) => (
+                    <div key={item.used_item_id || item.id} className="col-12 col-md-6 col-lg-4">
+                      <PostItem data={item} />
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-12 text-center py-5">
+                    <p className="text-muted fs-5">
+                      {hasSearched
+                        ? "لا توجد نتائج لعرضها"
+                        : "لا توجد منتجات لعرضها حالياً"}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+
           </div>
         </div>
       </div>

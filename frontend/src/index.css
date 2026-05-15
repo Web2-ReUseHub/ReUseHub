@@ -62,9 +62,35 @@ background-color:#1a2a5e;}
   font-size: 2rem;   /* حجم الأيقونة فقط */
   line-height: 1;    /* يمنع تكبير ارتفاع النافبار */
 }
-.shop-icon{
-  font-size:1.5rem ;
-  position: relative;
-  top: -9px;               /* يرفعها لفوق شوي */
+.shop-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.navbar-nav .nav-link {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+@media (max-width: 991.98px) {
+  .navbar-nav .nav-link {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+.icon-nav {
+  gap: 0.25rem;
+}
+.icon-item {
+  margin-bottom: 0.75rem;
+}
+.icon-item:last-child {
+  margin-bottom: 0;
+}
+@media (min-width: 992px) {
+  .icon-nav {
+    gap: 1rem;
+  }
+  .icon-item {
+    margin-bottom: 0;
+  }
 }
 

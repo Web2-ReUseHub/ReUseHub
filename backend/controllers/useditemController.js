@@ -56,7 +56,15 @@ exports.updateUsedItem = async (req, res) => {
 exports.deleteUsedItem = async (req, res) => {
   try {
     const { id } = req.params;
-    await UsedItem.destroy({ where: { used_item_id: id } });
+
+    await db.Like.destroy({ where: { used_item_id: id } });
+    await db.ProImg.destroy({ where: { used_item_id: id } });
+    await db.Fav.destroy({ where: { used_item_id: id } });
+
+    const deleted = await UsedItem.destroy({ where: { used_item_id: id } });
+    if (deleted === 0) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
     res.json({ message: 'Deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

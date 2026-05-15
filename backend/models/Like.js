@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class Like extends Model {
     static associate(models) {
       Like.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-      Like.belongsTo(models.UsedItem, { foreignKey: 'used_item_id', as: 'item' });
+      Like.belongsTo(models.UsedItem, { foreignKey: 'used_item_id', as: 'item', onDelete: 'CASCADE' });
     }
   }
 

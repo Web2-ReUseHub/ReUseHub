@@ -4,10 +4,10 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Req extends Model {
     static associate(models) {
-      // كل طلب مربوط بمستخدم
-      Req.belongsTo(models.User, { foreignKey: 'user_id' });
+      // كل طلب مربوط بمستخدم (المشتري)
+      Req.belongsTo(models.User, { foreignKey: 'user_id', as: 'buyer' });
       // وكل طلب مربوط بمنتج مستخدم
-      Req.belongsTo(models.UsedItem, { foreignKey: 'used_item_id' });
+      Req.belongsTo(models.UsedItem, { foreignKey: 'used_item_id', as: 'product' });
     }
   }
 
@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        comment: 'المشتري'
       },
       used_item_id: {
         type: DataTypes.INTEGER,
@@ -31,13 +32,22 @@ module.exports = (sequelize, DataTypes) => {
       },
       rating: {
         type: DataTypes.INTEGER
+      },
+      status: {
+        type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
+        defaultValue: 'pending',
+        comment: 'حالة الطلب: قيد الانتظار، موافق عليه، مرفوض'
+      },
+      seller_message: {
+        type: DataTypes.TEXT,
+        comment: 'الرسالة المُرسلة للمشتري عند القبول'
       }
     },
     {
       sequelize,
       modelName: 'Req',
       tableName: 'req',
-      timestamps: false
+      timestamps: true
     }
   );
 

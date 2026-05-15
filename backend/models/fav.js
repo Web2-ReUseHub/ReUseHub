@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class Fav extends Model {
     static associate(models) {
       Fav.belongsTo(models.User, { foreignKey: 'user_id' });
-      Fav.belongsTo(models.UsedItem, { foreignKey: 'used_item_id' });
+      Fav.belongsTo(models.UsedItem, { foreignKey: 'used_item_id', onDelete: 'CASCADE' });
     }
   }
 

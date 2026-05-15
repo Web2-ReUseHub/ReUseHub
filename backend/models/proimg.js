@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       // كل صورة مرتبطة بمنتج (UsedItem)
       ProImg.belongsTo(models.UsedItem, { 
         foreignKey: 'used_item_id', 
-        as: 'item' 
+        as: 'item',
+        onDelete: 'CASCADE'
       });
     }
   }
