@@ -30,13 +30,26 @@ exports.getUsedItems = async (req, res) => {
     const items = await UsedItem.findAll({
       include: [
         { model: db.ProImg, as: 'images' },
-        { model: db.Like, as: 'likes' }
+        { model: db.Like, as: 'likes' },
+        // ✅ إضافة بيانات اليوزر
+        {
+          model: db.User,
+          as: 'seller',
+          attributes: ['user_id', 'f_name', 'l_name', 'avatar_url']
+        }
       ]
     });
+
     const itemsWithCount = items.map(item => ({
       ...item.toJSON(),
-      likes_count: item.likes?.length || 0
+      likes_count: item.likes?.length || 0,
+      // ✅ ترتيب بيانات اليوزر
+      user: item.seller ? {
+        name: `${item.seller.f_name || ''} ${item.seller.l_name || ''}`.trim(),
+        avatar: item.seller.avatar_url || null
+      } : null
     }));
+
     res.json(itemsWithCount);
   } catch (error) {
     res.status(500).json({ error: error.message });

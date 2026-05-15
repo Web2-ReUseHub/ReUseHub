@@ -75,10 +75,16 @@ const generateDescription = async (req, res) => {
       temperature: 0.5,
     });
 
-    const result =
-        completion.choices[0]?.message?.content;
+    const result = completion.choices[0]?.message?.content;
 
-    return res.json({ success: true, result });
+// ✅ تنظيف الـ markdown
+    const cleanResult = (result || "منتج بحالة ممتازة ومناسب للاستخدام اليومي.")
+        .replace(/#{1,6}\s*/g, '')
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .trim();
+
+    return res.json({ success: true, result: cleanResult });
 
   } catch (error) {
     console.error("AI Error:", error);
