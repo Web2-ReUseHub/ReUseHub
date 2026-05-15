@@ -1,21 +1,21 @@
 {
   "development": {
-    "username": "root",
-    "password": "***REMOVED***",
-    "database": "reusehub",
+   "username": "root",
+    "password": "12345678",
+    "database": "web3",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "***REMOVED***",
+    "password": "12345678",
     "database": "reusehub",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": "***REMOVED***",
+   "username": "root",
+    "password": "12345678",
     "database": "reusehub",
     "host": "127.0.0.1",
     "dialect": "mysql"
