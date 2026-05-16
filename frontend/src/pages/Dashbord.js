@@ -68,7 +68,6 @@ const Dashboard = () => {
     { title: "عدد البائعين النشطين", value: stats.activeSellersCount },
     { title: "عدد المنتجات التي تم بيعها", value: stats.soldItemsCount },
     { title: "عدد المنتجات المفضلة", value: stats.favoritesCount },
-    { title: "عدد البلاغات / الشكاوى", value: stats.reportsCount },
   ];
 
   return (
