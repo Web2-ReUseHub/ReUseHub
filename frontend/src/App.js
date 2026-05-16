@@ -11,11 +11,9 @@ import CreatePost from "./pages/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import Dashbord from "./pages/Dashbord";
-<<<<<<< HEAD
 import Requests from "./pages/Requesteditem";  
-=======
 import AdminRoute from "./components/AdminRoute";
->>>>>>> origin/mahmouddwikat
+
 function App() {
   return (
     <Routes>
