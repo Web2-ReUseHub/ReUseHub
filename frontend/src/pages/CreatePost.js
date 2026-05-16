@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 const API_BASE_URL = "http://localhost:5004";
 const MAX_IMAGES = 5;
 const AI_URL = "http://localhost:5004/ai/generate-post";
@@ -24,52 +25,43 @@ function CreatePost() {
   const fileInputRef = useRef(null);
 
   const categories = [
-  // 🔌 إلكترونيات
-  "لابتوب",
-  "شاشات",
-  "تلفونات",
+    "إلكترونيات",
+    "لابتوب",
+    "شاشات",
+    "تلفونات",
+    // 🛋️ أثاث
+    "غرف نوم",
+    "غرف جلوس",
+    "طاولات",
+    "كراسي",
+    "مكاتب",
+    "خزائن",
+    "مكتبات/رفوف",
+    "أثاث خارجي",
+    // 🚗 سيارات
+    "BMW",
+    "Mercedes",
+    "Toyota",
+    "Ford",
+    "Honda",
+    // ⚙️ أجهزة كهربائية
+    "ثلاجات",
+    "غسالات",
+    "مكيفات هواء",
+    "أفران/مايكروويف",
+    "مكانس كهربائية",
+    "سخانات مياه",
+    "خلاطات/محضرات طعام",
+    "مكواة",
+    "تلفزيونات"
+  ];
 
-  // 🛋️ أثاث
-  "غرف نوم",
-  "غرف جلوس",
-  "طاولات",
-  "كراسي",
-  "مكاتب",
-  "خزائن",
-  "مكتبات/رفوف",
-  "أثاث خارجي",
-
-  // 🚗 سيارات
-  "BMW",
-  "Mercedes",
-  "Toyota",
-  "Ford",
-  "Honda",
-
-  // ⚙️ أجهزة كهربائية
-  "ثلاجات",
-  "غسالات",
-  "مكيفات هواء",
-  "أفران/مايكروويف",
-  "مكانس كهربائية",
-  "سخانات مياه",
-  "خلاطات/محضرات طعام",
-  "مكواة",
-  "تلفزيونات"
-];
-
-  const conditions = [ "مستعمل - ممتاز", "مستعمل - جيد"];
+  const conditions = [ "جديد", "مستعمل - ممتاز", "مستعمل - جيد"];
 
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem("token");
-      if (!token) { alert("يجب تسجيل الدخول أولاً"); navigate("/login"); return; }
-      if (!title.trim()) { alert("يرجى إدخال عنوان المنتج"); return; }
-      if (!description.trim()) { alert("يرجى إدخال وصف المنتج"); return; }
-      if (!price || Number(price) <= 0) { alert("يرجى إدخال سعر صحيح"); return; }
-
-
       if (!token) { alert("يجب تسجيل الدخول أولاً"); navigate("/login"); return; }
       if (!title.trim()) { alert("يرجى إدخال عنوان المنتج"); return; }
       if (!description.trim()) { alert("يرجى إدخال وصف المنتج"); return; }
@@ -117,7 +109,6 @@ function CreatePost() {
     } catch (error) {
       console.error("Error creating post:", error);
       alert(error.response?.data?.message || error.response?.data?.error || "حدث خطأ أثناء إنشاء المنتج");
-
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +141,6 @@ function CreatePost() {
   const handleGenerateAI = async () => {
     if (!title.trim()) return setError("اكتب عنوان المنتج أولاً عشان الـ AI يولّد وصف");
 
-
     setError("");
     setAiLoading(true);
 
@@ -167,7 +157,6 @@ function CreatePost() {
         });
       }
 
-
       const response = await fetch(AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -175,7 +164,7 @@ function CreatePost() {
           title: title.trim(),
           category: selectedCategory,
           condition: selectedCondition,
-          price: price,           // ✅ السعر يروح للـ AI
+          price: price,
           imageBase64,
         }),
       });
@@ -195,7 +184,6 @@ function CreatePost() {
       setDescription(data.result);
     } catch (err) {
       console.error("AI Generate Error:", err);
-
       setError("فشل توليد الوصف: " + err.message);
     } finally {
       setAiLoading(false);
@@ -203,7 +191,6 @@ function CreatePost() {
   };
 
   return (
-
       <div style={page}>
         <div style={card}>
           <button
@@ -220,7 +207,6 @@ function CreatePost() {
           </div>
 
           <div style={formGrid}>
-
             <div style={fieldBlock}>
               <label style={label}>عنوان المنتج</label>
               <input
@@ -243,10 +229,7 @@ function CreatePost() {
                     style={input}
                 />
               </div>
-              
             </div>
-
-            
 
             <div style={uploadSection}>
               <div style={uploadHeader}>
@@ -319,7 +302,8 @@ function CreatePost() {
             <div style={toggleCard}>
               <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
             </div>
-<div style={fieldBlock}>
+
+            <div style={fieldBlock}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <label style={label}>وصف المنتج</label>
                 <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
@@ -338,6 +322,7 @@ function CreatePost() {
                   </p>
               )}
             </div>
+
             {error && <div style={errorBox}>⚠️ {error}</div>}
 
             <button
@@ -348,11 +333,8 @@ function CreatePost() {
             >
               {isSubmitting ? "جارٍ النشر..." : "نشر المنتج"}
             </button>
-
           </div>
-
         </div>
-        
       </div>
   );
 }
