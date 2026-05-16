@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.STRING,
     seller_id: DataTypes.INTEGER,
     cat_id: DataTypes.INTEGER,
-    created_at: DataTypes.DATE
+    created_at: DataTypes.DATE,
+    is_sold: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   }, {
     sequelize,
     modelName: 'UsedItem',

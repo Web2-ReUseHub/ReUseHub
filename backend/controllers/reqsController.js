@@ -52,6 +52,7 @@ exports.getMyRequests = async (req, res) => {
 exports.getReceivedRequests = async (req, res) => {
   try {
     const seller_id = req.user?.user_id;
+
     if (!seller_id) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -66,13 +67,25 @@ exports.getReceivedRequests = async (req, res) => {
         {
           model: User,
           as: 'buyer',
-          attributes: ['user_id', 'f_name', 'l_name', 'phone', 'email', 'city'],
+          attributes: [
+            'user_id',
+            'f_name',
+            'l_name',
+            'phone',
+            'email',
+            'address' // بدل city
+          ],
         },
       ],
+      order: [['req_id', 'DESC']],
     });
+
     res.json(requests);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('RECEIVED REQUESTS ERROR:', error);
+    res.status(500).json({
+      error: error.message,
+    });
   }
 };
 

@@ -75,10 +75,21 @@ exports.getUserById = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    console.log('REGISTER body:', req.body);
-    const { f_name, l_name, email, password, phone, address } = req.body || {};
+    console.log("REGISTER body:", req.body);
 
-    if (!f_name || !email || !password) {
+    const {
+      f_name,
+      l_name,
+      email,
+      password,
+      phone,
+      address,
+    } = req.body || {};
+
+    const firstNameValue = f_name;
+    const lastNameValue = l_name || "";
+
+    if (!firstNameValue || !email || !password) {
       return res.status(400).json({
         message: "First name, email and password are required",
       });
@@ -90,10 +101,14 @@ exports.register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await db.User.create({
-      f_name, l_name, email,
+      f_name: firstNameValue,
+      l_name: lastNameValue,
+      email,
       password: hashedPassword,
-      phone, address,
+      phone,
+      address,
     });
 
     res.status(201).json({
@@ -153,3 +168,67 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+exports.getUserStats = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    
+    const totalPosts = await db.UsedItem.count({
+      where: { seller_id: id }
+    });
+
+    
+    const completedDeals = await db.UsedItem.count({
+      where: {
+        seller_id: id,
+        is_sold: 1
+      }
+    });
+
+    
+    const successRate =
+      totalPosts > 0
+        ? Math.round((completedDeals / totalPosts) * 100)
+        : 0;
+
+    
+    const ratingCount = await db.Req.count({
+      include: [
+        {
+          model: db.UsedItem,
+          as: 'product', 
+          required: true,
+          where: {
+            seller_id: id
+          }
+        }
+      ],
+      where: {
+        rating: {
+          [db.Sequelize.Op.ne]: null
+        }
+      }
+    });
+
+    
+    res.json({
+      completedDeals,
+      successRate,
+      totalPosts,
+      ratingCount
+    });
+
+  } catch (error) {
+    console.error("STATS ERROR:", error);
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
+
+
+
