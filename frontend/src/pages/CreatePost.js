@@ -56,7 +56,7 @@ function CreatePost() {
     "تلفزيونات"
   ];
 
-  const conditions = [ "جديد", "مستعمل - ممتاز", "مستعمل - جيد"];
+  const conditions = [  "مستعمل - ممتاز", "مستعمل - جيد"];
 
   const handleSubmit = async () => {
     try {

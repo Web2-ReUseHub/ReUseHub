@@ -56,7 +56,17 @@ export default function Navbar({ showFull }) {
           </ul>
 
           {showFull && (
+
+
             <ul className="navbar-nav mb-2 mb-lg-0 d-flex flex-column flex-lg-row align-items-start align-items-lg-center icon-nav">
+              
+                       <li className="nav-item icon-item">
+  <Link className="nav-link p-0" to="/favorites">
+    <i className="bi bi-heart-fill favorite-icon ms-3" style={{ color: "red" }}></i>
+  </Link>
+</li>
+              
+              
               <li className="nav-item icon-item">
                 <Link className="nav-link p-0" to="/requests">
                   <i className="bi bi-clipboard-check shop-icon"></i>
@@ -67,6 +77,13 @@ export default function Navbar({ showFull }) {
                   <i className="bi bi-person-circle profile-icon ms-3"></i>
                 </Link>
               </li>
+              
+     
+
+
+
+
+
               <li className="nav-item ms-lg-3 mt-2 mt-lg-0">
                 <button
                   className="btn btn-outline-light btn-sm"
