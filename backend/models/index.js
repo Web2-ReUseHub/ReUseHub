@@ -6,12 +6,10 @@ const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const db = {};
 
-// قراءة إعدادات قاعدة البيانات من config/config.json
 const config = require('../config/config.json');
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
 
-// إنشاء الاتصال باستخدام إعدادات config.json
 const sequelize = new Sequelize(
   dbConfig.database,
   dbConfig.username,
@@ -19,11 +17,18 @@ const sequelize = new Sequelize(
   {
     host: dbConfig.host,
     dialect: dbConfig.dialect,
-    logging: false
+    logging: false,
+    dialectOptions: {
+      dateStrings: true,
+      typeCast: true,
+    },
   }
 );
 
-// تحميل جميع الـ Models تلقائياً
+// تعيين sql_mode بعد الاتصال
+sequelize.query("SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'")
+  .catch(err => console.error('sql_mode error:', err.message));
+
 fs.readdirSync(__dirname)
   .filter(file =>
     file.indexOf('.') !== 0 &&
@@ -38,7 +43,6 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-// تنفيذ العلاقات بين الجداول
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -48,7 +52,6 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// مزامنة قاعدة البيانات
 db.sequelize.sync({ alter: true })
   .then(() => {
     console.log("✅ Database synced & Tables created!");

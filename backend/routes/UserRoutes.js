@@ -6,7 +6,6 @@ const multer = require("multer");
 const path = require("path");
 const db = require("../models");
 
-// ── Multer setup ────────────────────────────────────────────
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) =>
@@ -14,13 +13,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ── Routes ──────────────────────────────────────────────────
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/profile/me", authMiddleware, userController.getMyProfile);
 router.put("/profile/update", authMiddleware, userController.updateProfile);
 router.get("/", authMiddleware, userController.getAllUsers);
 router.get("/stats/:id", authMiddleware, userController.getUserStats);
+
+// ← أضف هاد قبل /:id
+router.post("/rate/:id", authMiddleware, userController.rateUser);
+
 router.get("/:id", authMiddleware, userController.getUserById);
 
 router.post(

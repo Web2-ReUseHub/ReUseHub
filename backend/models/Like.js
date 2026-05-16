@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
     like_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     user_id: DataTypes.INTEGER,
     used_item_id: DataTypes.INTEGER,
-    created_at: DataTypes.DATE
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    }
   }, {
     sequelize,
     modelName: 'Like',

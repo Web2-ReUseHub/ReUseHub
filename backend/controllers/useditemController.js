@@ -57,16 +57,12 @@ exports.getUsedItems = async (req, res) => {
 
 exports.getTrendingItems = async (req, res) => {
   try {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
     const items = await UsedItem.findAll({
       include: [
         { model: db.ProImg, as: 'images' },
         {
           model: db.Like,
           as: 'likes',
-          where: { created_at: { [Op.gte]: weekAgo } },
           required: false
         },
         {
@@ -98,6 +94,37 @@ exports.getTrendingItems = async (req, res) => {
   }
 };
 
+// ← هاد هو التعديل
+exports.getUserItems = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const items = await db.UsedItem.findAll({
+      where: { seller_id: id },
+      include: [
+        { model: db.ProImg, as: 'images' },
+        {
+          model: db.User,
+          as: 'seller',
+          attributes: ['user_id', 'f_name', 'l_name', 'avatar_url']
+        }
+      ]
+    });
+
+    const itemsWithCount = items.map(item => ({
+      ...item.toJSON(),
+      user: item.seller ? {
+        name: `${item.seller.f_name || ''} ${item.seller.l_name || ''}`.trim(),
+        avatar: item.seller.avatar_url || null
+      } : null
+    }));
+
+    res.json(itemsWithCount);
+  } catch (error) {
+    console.error("GET USER ITEMS ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 exports.updateUsedItem = async (req, res) => {
   try {
     const { id } = req.params;

@@ -4,9 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Req extends Model {
     static associate(models) {
-      // كل طلب مربوط بمستخدم (المشتري)
       Req.belongsTo(models.User, { foreignKey: 'user_id', as: 'buyer' });
-      // وكل طلب مربوط بمنتج مستخدم
       Req.belongsTo(models.UsedItem, { foreignKey: 'used_item_id', as: 'product' });
     }
   }
@@ -41,13 +39,23 @@ module.exports = (sequelize, DataTypes) => {
       seller_message: {
         type: DataTypes.TEXT,
         comment: 'الرسالة المُرسلة للمشتري عند القبول'
-      }
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
       sequelize,
       modelName: 'Req',
       tableName: 'req',
-      timestamps: true
+      timestamps: true,
     }
   );
 

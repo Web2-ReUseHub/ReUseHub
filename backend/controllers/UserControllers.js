@@ -170,9 +170,65 @@ exports.getUserStats = async (req, res) => {
       where: { rating: { [db.Sequelize.Op.ne]: null } },
     });
 
-    res.json({ completedDeals, successRate, totalPosts, ratingCount });
+    const ratingData = await db.Req.findOne({
+      attributes: [[db.Sequelize.fn('AVG', db.Sequelize.col('rating')), 'avg']],
+      include: [
+        {
+          model: db.UsedItem,
+          as: "product",
+          required: true,
+          where: { seller_id: id },
+        },
+      ],
+      where: { rating: { [db.Sequelize.Op.ne]: null } },
+      raw: true
+    });
+
+    const rating = ratingData?.avg ? Math.round(parseFloat(ratingData.avg) * 10) / 10 : 0;
+
+    res.json({ completedDeals, successRate, totalPosts, ratingCount, rating });
+
   } catch (error) {
     console.error("STATS ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.rateUser = async (req, res) => {
+  try {
+    const seller_id = req.params.id;
+    const buyer_id = req.user.user_id;
+    const { rating } = req.body;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "التقييم لازم يكون بين 1 و 5" });
+    }
+
+    const req_record = await db.Req.findOne({
+      include: [
+        {
+          model: db.UsedItem,
+          as: "product",
+          required: true,
+          where: { seller_id },
+        },
+      ],
+      where: {
+        user_id: buyer_id,
+        status: "accepted",
+        rating: null,
+      },
+    });
+
+    if (!req_record) {
+      return res.status(403).json({ message: "ما عندك صلاحية تقييم هذا البائع" });
+    }
+
+    await req_record.update({ rating });
+
+    res.json({ message: "تم التقييم بنجاح" });
+  } catch (error) {
+    console.error("RATE ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };

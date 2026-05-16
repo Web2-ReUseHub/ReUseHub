@@ -34,18 +34,23 @@ module.exports = (sequelize, DataTypes) => {
       password:   DataTypes.STRING,
       phone:      DataTypes.STRING,
       address:    DataTypes.STRING,
-      username:   DataTypes.STRING, 
-      bio:        DataTypes.TEXT,    
-      avatar_url: DataTypes.STRING,  
-      city:       DataTypes.STRING,   
+      username:   DataTypes.STRING,
+      bio:        DataTypes.TEXT,
+      avatar_url: DataTypes.STRING,
+      city:       DataTypes.STRING,
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
       sequelize,
       modelName: 'User',
       tableName: 'user',
       timestamps: true,
-      updatedAt: false,         
-      createdAt: 'createdAt',  
+      updatedAt: false,
+      createdAt: 'createdAt',
     }
   );
 
