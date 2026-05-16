@@ -1,22 +1,39 @@
 {
   "development": {
+
+   "username": "root",
+    "password": "12345678",
+    "database": "web3",
+
     "username": "root",
-    "password": "***REMOVED***",
-    "database": "reusehub",
+    "password": "",
+    "database": "project_db",
+
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "***REMOVED***",
+
+    "password": "12345678",
     "database": "reusehub",
+
+    "password": "",
+    "database": "project_db",
+
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": "***REMOVED***",
+
+   "username": "root",
+    "password": "12345678",
     "database": "reusehub",
+
+    "username": "root",
+    "password": "",
+    "database": "project_db",
+
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

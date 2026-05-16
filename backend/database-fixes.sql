@@ -1,0 +1,11 @@
+USE web3;
+
+ALTER TABLE req
+DROP FOREIGN KEY req_ibfk_8;
+
+ALTER TABLE req
+ADD CONSTRAINT req_ibfk_8
+FOREIGN KEY (used_item_id)
+REFERENCES used_item(used_item_id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
