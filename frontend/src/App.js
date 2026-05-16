@@ -11,6 +11,7 @@ import CreatePost from "./pages/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import Dashbord from "./pages/Dashbord";
+import Requests from "./pages/Requesteditem";  
 function App() {
   return (
     <Routes>
@@ -79,6 +80,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashbord/>
+          </ProtectedRoute>
+        }
+      />
+        <Route
+        path="/requests"
+        element={
+          <ProtectedRoute>
+            <Requests />
           </ProtectedRoute>
         }
       />

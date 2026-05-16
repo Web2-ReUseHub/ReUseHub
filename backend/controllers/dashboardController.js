@@ -1,42 +1,69 @@
-const { UsedItem, Request, User, Category, Favorite, Report } = require("../models");
+const { User, UsedItem, Fav, Req, Like, Comment } = require("../models");
+const { Op } = require("sequelize");
 
-exports.getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res) => {
   try {
-    const totalRequests = await Request.count();
-    const buyerRequests = await Request.count({ where: { type: "buyer" } });
-    const sellerRequests = await Request.count({ where: { type: "seller" } });
-    const acceptedRequests = await Request.count({ where: { status: "accepted" } });
-    const rejectedRequests = await Request.count({ where: { status: "rejected" } });
+    // عدد المستخدمين الكلي
+    const usersCount = await User.count();
 
-    const soldItems = await UsedItem.count({ where: { is_sold: true } });
-    const favoritesCount = await Favorite.count();
-    const activeSellers = await User.count({ where: { role: "seller", is_active: true } });
+    // عدد المنتجات المستخدمة
+    const itemsCount = await UsedItem.count();
+
+    // عدد الطلبات المرسلة
+    const requestsCount = await Req.count();
+
+    // عدد الطلبات المقبولة (مثلاً status = 'accepted')
+    const acceptedRequestsCount = await Req.count({ where: { status: "accepted" } });
+
+    // عدد المنتجات التي تم بيعها (مثلاً sold = true)
+    const soldItemsCount = await UsedItem.count({ where: { sold: true } });
+
+    // عدد المنتجات المفضلة
+    const favoritesCount = await Fav.count();
+
+    // عدد البائعين النشطين (مثلاً عندهم منتجات مفعّلة)
+    const activeSellersCount = await User.count({
+      include: [{ model: UsedItem, as: "posts" }],
+      distinct: true
+    });
+
+    // عدد المستخدمين الجدد اليوم
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const newUsersToday = await User.count({
-      where: { created_at: { [Op.gte]: new Date().setHours(0, 0, 0, 0) } }
+      where: { createdAt: { [Op.gte]: today } }
     });
 
-    const categoriesCount = await Category.count();
-    const newPostsToday = await UsedItem.count({
-      where: { created_at: { [Op.gte]: new Date().setHours(0, 0, 0, 0) } }
+    // عدد المستخدمين الجدد هذا الأسبوع
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const newUsersWeek = await User.count({
+      where: { createdAt: { [Op.gte]: weekAgo } }
     });
-    const pendingReports = await Report.count({ where: { status: "pending" } });
+
+    // عدد تسجيلات الدخول اليوم (لو عندك جدول login_logs)
+    const loginsToday = 0; // مؤقت، ممكن تربطيه لاحقًا بجدول login_logs
+
+    // عدد البلاغات / الشكاوى (لو عندك جدول reports)
+    const reportsCount = 0; // مؤقت، ممكن تربطيه لاحقًا بجدول reports
 
     res.json({
-      totalRequests,
-      buyerRequests,
-      sellerRequests,
-      acceptedRequests,
-      rejectedRequests,
-      soldItems,
+      usersCount,
+      itemsCount,
+      requestsCount,
+      acceptedRequestsCount,
+      soldItemsCount,
       favoritesCount,
-      activeSellers,
+      activeSellersCount,
       newUsersToday,
-      categoriesCount,
-      newPostsToday,
-      pendingReports
+      newUsersWeek,
+      loginsToday,
+      reportsCount
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "حدث خطأ أثناء جلب بيانات لوحة التحكم" });
+    console.error("Error fetching dashboard stats:", error);
+    res.status(500).json({ error: "Failed to fetch dashboard stats" });
   }
 };
+
+module.exports = { getDashboardStats };

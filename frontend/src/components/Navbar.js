@@ -40,9 +40,9 @@ export default function Navbar({ showFull }) {
           {showFull && (
             <ul className="navbar-nav mb-2 mb-lg-0 d-flex flex-column flex-lg-row align-items-start align-items-lg-center icon-nav">
               <li className="nav-item icon-item">
-                <a className="nav-link p-0" href="#">
+                <Link className="nav-link p-0" to="/requests">
                   <i className="bi bi-clipboard-check shop-icon"></i>
-                </a>
+                </Link>
               </li>
               <li className="nav-item icon-item">
                 <Link className="nav-link p-0" to="/profile">

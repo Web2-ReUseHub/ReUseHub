@@ -45,7 +45,8 @@ app.use("/favorites", favoriteRoutes);
 app.use("/used-items", usedItemRoutes);
 app.use("/ai", aiRoutes);
 app.use("/api", smartSearchRoutes);
-app.use("/dashboard", dashboardRoutes);
+app.use("/admin/stats", dashboardRoutes);
+
 
 
 
