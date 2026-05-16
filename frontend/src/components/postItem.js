@@ -34,6 +34,10 @@ const PostItem = ({ data }) => {
       ? data.images.map(img => `${API_BASE_URL}${img.img_url}`)
       : ["https://via.placeholder.com/600x400"];
 
+  const avatarSrc = data.user?.avatar
+      ? `${API_BASE_URL}${data.user.avatar}`
+      : 'https://via.placeholder.com/50';
+
   const handleLike = async () => {
     const token = localStorage.getItem("token");
     if (!token) { alert("يجب تسجيل الدخول أولاً"); return; }
@@ -88,11 +92,10 @@ const PostItem = ({ data }) => {
       <>
         <div className="card mb-5 shadow border-0 mx-auto" style={{ borderRadius: '20px', overflow: 'hidden', maxWidth: '600px', backgroundColor: '#a4c6d8' }}>
 
-          {/* Header */}
           <div className="card-header border-0 d-flex align-items-center justify-content-between p-3" style={{ backgroundColor: '#1a2a5e' }}>
             <div className="d-flex align-items-center">
               <img
-                  src={data.user?.avatar || 'https://via.placeholder.com/50'}
+                  src={avatarSrc}
                   className="rounded-circle border"
                   width="45" height="45" alt="user"
                   style={{ marginLeft: '12px', objectFit: 'cover' }}
@@ -112,13 +115,11 @@ const PostItem = ({ data }) => {
             </div>
           </div>
 
-          {/* Image Section */}
           <div style={{ backgroundColor: '#d6e4ec', position: 'relative' }}>
             <div className="p-3 text-end">
               <h5 className="fw-bold" style={{ color: '#000000' }}>{displayTitle || 'منتج مستخدم'}</h5>
             </div>
 
-            {/* ✅ صورة بحجم ثابت */}
             <div
                 className="d-flex justify-content-center"
                 style={{ cursor: images.length > 0 ? 'pointer' : 'default', position: 'relative' }}
@@ -129,12 +130,11 @@ const PostItem = ({ data }) => {
                   className="rounded mx-auto d-block"
                   style={{
                     width: "100%",
-                    height: "250px",       // ✅ ارتفاع ثابت
-                    objectFit: "cover",    // ✅ تملأ المساحة بدون تشويه
+                    height: "250px",
+                    objectFit: "cover",
                   }}
                   alt="post"
               />
-              {/* ✅ badge عدد الصور */}
               {images.length > 1 && (
                   <span style={{
                     position: 'absolute', bottom: 10, left: 10,
@@ -147,7 +147,6 @@ const PostItem = ({ data }) => {
               )}
             </div>
 
-            {/* أزرار فوق الصورة */}
             <div className="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
               <button
                   onClick={handleRequest}
@@ -185,7 +184,6 @@ const PostItem = ({ data }) => {
 
             <hr className="my-3 opacity-25" />
 
-            {/* أزرار التفاعل */}
             <div className="d-flex gap-2 w-100">
               <button onClick={handleLike} className="btn btn-light btn-sm flex-fill d-flex align-items-center justify-content-center gap-2 py-2">
                 <i className={`bi ${liked ? 'bi-heart-fill' : 'bi-heart'} text-danger`}></i>
@@ -210,7 +208,6 @@ const PostItem = ({ data }) => {
           </div>
         </div>
 
-        {/* ✅ Gallery Modal */}
         {showGallery && (
             <div
                 onClick={() => setShowGallery(false)}
@@ -222,28 +219,25 @@ const PostItem = ({ data }) => {
                   alignItems: 'center', justifyContent: 'center'
                 }}
             >
-              {/* زر الإغلاق */}
               <button
                   onClick={() => setShowGallery(false)}
                   style={{ position: 'absolute', top: 20, left: 20, background: 'transparent', border: 'none', color: '#fff', fontSize: 32, cursor: 'pointer', zIndex: 10000 }}
               >✕</button>
 
-              {/* الصورة الكبيرة مع أزرار التنقل */}
               <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                 <button
                     onClick={(e) => { e.stopPropagation(); setActiveIndex(prev => (prev - 1 + images.length) % images.length); }}
                     style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', fontSize: 28, borderRadius: '50%', width: 50, height: 50, cursor: 'pointer' }}
                 >‹</button>
 
-                {/* ✅ حجم ثابت للصورة الكبيرة */}
                 <img
                     src={images[activeIndex]}
                     alt={`صورة ${activeIndex + 1}`}
                     style={{
                       width: '70vw',
-                      height: '65vh',        // ✅ ارتفاع ثابت
+                      height: '65vh',
                       borderRadius: 16,
-                      objectFit: 'contain',  // ✅ contain عشان تظهر كاملة
+                      objectFit: 'contain',
                       boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                       background: '#111'
                     }}
@@ -255,7 +249,6 @@ const PostItem = ({ data }) => {
                 >›</button>
               </div>
 
-              {/* ✅ Thumbnails بحجم ثابت */}
               <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                 {images.map((img, i) => (
                     <img
@@ -265,8 +258,8 @@ const PostItem = ({ data }) => {
                         onClick={() => setActiveIndex(i)}
                         style={{
                           width: 70,
-                          height: 70,            // ✅ حجم ثابت
-                          objectFit: 'cover',    // ✅ cover للـ thumbnails
+                          height: 70,
+                          objectFit: 'cover',
                           borderRadius: 10,
                           cursor: 'pointer',
                           border: i === activeIndex ? '3px solid #C9A84C' : '3px solid transparent',

@@ -1,51 +1,63 @@
-const { User, UsedItem, Fav, Req, Like, Comment } = require("../models");
+const { User, UsedItem, Fav, Req, Report } = require("../models");
 const { Op } = require("sequelize");
 
 const getDashboardStats = async (req, res) => {
   try {
-    // عدد المستخدمين الكلي
-    const usersCount = await User.count();
-
-    // عدد المنتجات المستخدمة
-    const itemsCount = await UsedItem.count();
-
-    // عدد الطلبات المرسلة
-    const requestsCount = await Req.count();
-
-    // عدد الطلبات المقبولة (مثلاً status = 'accepted')
+    // ── أعداد أساسية ──────────────────────────────────────────
+    const usersCount            = await User.count();
+    const itemsCount            = await UsedItem.count();
+    const requestsCount         = await Req.count();
     const acceptedRequestsCount = await Req.count({ where: { status: "accepted" } });
 
-    // عدد المنتجات التي تم بيعها (مثلاً sold = true)
-    const soldItemsCount = await UsedItem.count({ where: { sold: true } });
+    // تأكد أيهم صح بجدولك: is_sold: true  أو  status: "sold"
+    const soldItemsCount        = await UsedItem.count({ where: { status: "sold" } });
 
-    // عدد المنتجات المفضلة
-    const favoritesCount = await Fav.count();
+    const favoritesCount        = await Fav.count();
 
-    // عدد البائعين النشطين (مثلاً عندهم منتجات مفعّلة)
-    const activeSellersCount = await User.count({
+    // ── البائعون النشطون (عندهم منتجات منشورة) ─────────────────
+    const activeSellersCount    = await User.count({
       include: [{ model: UsedItem, as: "posts" }],
-      distinct: true
+      distinct: true,
     });
 
-    // عدد المستخدمين الجدد اليوم
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const newUsersToday = await User.count({
-      where: { createdAt: { [Op.gte]: today } }
-    });
+    // ── مستخدمون جدد ───────────────────────────────────────────
+    let newUsersToday = 0;
+    let newUsersWeek  = 0;
 
-    // عدد المستخدمين الجدد هذا الأسبوع
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const newUsersWeek = await User.count({
-      where: { createdAt: { [Op.gte]: weekAgo } }
-    });
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    // عدد تسجيلات الدخول اليوم (لو عندك جدول login_logs)
-    const loginsToday = 0; // مؤقت، ممكن تربطيه لاحقًا بجدول login_logs
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
 
-    // عدد البلاغات / الشكاوى (لو عندك جدول reports)
-    const reportsCount = 0; // مؤقت، ممكن تربطيه لاحقًا بجدول reports
+      // إذا Sequelize بيستخدم created_at غيّر createdAt لـ created_at
+      newUsersToday = await User.count({ where: { createdAt: { [Op.gte]: today } } });
+      newUsersWeek  = await User.count({ where: { createdAt: { [Op.gte]: weekAgo } } });
+    } catch (dateErr) {
+      console.warn("Could not fetch date-based stats:", dateErr.message);
+    }
+
+    // ── منتجات جديدة اليوم ─────────────────────────────────────
+    let newPostsToday = 0;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      newPostsToday = await UsedItem.count({ where: { createdAt: { [Op.gte]: today } } });
+    } catch (dateErr) {
+      console.warn("Could not fetch newPostsToday:", dateErr.message);
+    }
+
+    // ── البلاغات ───────────────────────────────────────────────
+    // إذا عندك model اسمه Report أو مختلف، غيّر هون
+    let reportsCount = 0;
+    try {
+      reportsCount = await Report.count({ where: { status: "pending" } });
+    } catch (reportErr) {
+      console.warn("Could not fetch reports:", reportErr.message);
+    }
+
+    const loginsToday = 0; // أضف logic لما يكون عندك جدول sessions
 
     res.json({
       usersCount,
@@ -57,12 +69,16 @@ const getDashboardStats = async (req, res) => {
       activeSellersCount,
       newUsersToday,
       newUsersWeek,
+      newPostsToday,
       loginsToday,
-      reportsCount
+      reportsCount,
     });
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
-    res.status(500).json({ error: "Failed to fetch dashboard stats" });
+    console.error("DASHBOARD ERROR:", error);
+    res.status(500).json({
+      error: "Failed to fetch dashboard stats",
+      details: error.message,
+    });
   }
 };
 

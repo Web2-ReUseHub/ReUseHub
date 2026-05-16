@@ -2,6 +2,7 @@ const db = require('../models');
 const { UsedItem, ProImg } = db;
 const multer = require('multer');
 const path = require('path');
+const { Op } = require('sequelize');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -31,7 +32,6 @@ exports.getUsedItems = async (req, res) => {
       include: [
         { model: db.ProImg, as: 'images' },
         { model: db.Like, as: 'likes' },
-        // ✅ إضافة بيانات اليوزر
         {
           model: db.User,
           as: 'seller',
@@ -43,7 +43,6 @@ exports.getUsedItems = async (req, res) => {
     const itemsWithCount = items.map(item => ({
       ...item.toJSON(),
       likes_count: item.likes?.length || 0,
-      // ✅ ترتيب بيانات اليوزر
       user: item.seller ? {
         name: `${item.seller.f_name || ''} ${item.seller.l_name || ''}`.trim(),
         avatar: item.seller.avatar_url || null
@@ -52,6 +51,49 @@ exports.getUsedItems = async (req, res) => {
 
     res.json(itemsWithCount);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getTrendingItems = async (req, res) => {
+  try {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const items = await UsedItem.findAll({
+      include: [
+        { model: db.ProImg, as: 'images' },
+        {
+          model: db.Like,
+          as: 'likes',
+          where: { created_at: { [Op.gte]: weekAgo } },
+          required: false
+        },
+        {
+          model: db.User,
+          as: 'seller',
+          attributes: ['user_id', 'f_name', 'l_name', 'avatar_url']
+        }
+      ]
+    });
+
+    const itemsWithEngagement = items.map(item => ({
+      ...item.toJSON(),
+      likes_count: item.likes?.length || 0,
+      engagement: item.likes?.length || 0,
+      user: item.seller ? {
+        name: `${item.seller.f_name || ''} ${item.seller.l_name || ''}`.trim(),
+        avatar: item.seller.avatar_url || null
+      } : null
+    }));
+
+    const trending = itemsWithEngagement
+      .sort((a, b) => b.engagement - a.engagement)
+      .slice(0, 5);
+
+    res.json(trending);
+  } catch (error) {
+    console.error("TRENDING ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };

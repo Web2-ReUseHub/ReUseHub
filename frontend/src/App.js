@@ -11,7 +11,7 @@ import CreatePost from "./pages/CreatePost";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Products from "./pages/Products";
 import Dashbord from "./pages/Dashbord";
-import Requests from "./pages/Requesteditem";  
+import Requests from "./pages/RequestsPage";
 import AdminRoute from "./components/AdminRoute";
 
 function App() {
@@ -65,6 +65,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/products"
         element={
@@ -74,11 +75,7 @@ function App() {
         }
       />
 
-
-
-
-
-        <Route
+      <Route
         path="/requests"
         element={
           <ProtectedRoute>
@@ -86,18 +83,17 @@ function App() {
           </ProtectedRoute>
         }
       />
- <Route
-  path="/dashbord"
-  element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <Dashbord />
-      </AdminRoute>
-    </ProtectedRoute>
-  }
-/>
 
-      
+      <Route
+        path="/dashbord"
+        element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <Dashbord />
+            </AdminRoute>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

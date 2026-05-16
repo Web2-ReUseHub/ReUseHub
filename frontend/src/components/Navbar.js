@@ -60,12 +60,6 @@ export default function Navbar({ showFull }) {
 
             <ul className="navbar-nav mb-2 mb-lg-0 d-flex flex-column flex-lg-row align-items-start align-items-lg-center icon-nav">
               
-                       <li className="nav-item icon-item">
-  <Link className="nav-link p-0" to="/favorites">
-    <i className="bi bi-heart-fill favorite-icon ms-3" style={{ color: "red" }}></i>
-  </Link>
-</li>
-              
               
               <li className="nav-item icon-item">
                 <Link className="nav-link p-0" to="/requests">
