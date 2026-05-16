@@ -24,7 +24,7 @@ function CreatePost() {
   const fileInputRef = useRef(null);
 
   const categories = [
-  // 🔌 إلكترونيات
+  "إلكترونيات",
   "لابتوب",
   "شاشات",
   "تلفونات",
@@ -243,38 +243,8 @@ function CreatePost() {
                     style={input}
                 />
               </div>
-              <div style={fieldBlock}>
-                <label style={label}>الكمية</label>
-                <input
-                    type="number"
-                    min="1"
-                    placeholder="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    style={input}
-                />
-              </div>
             </div>
 
-            <div style={fieldBlock}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <label style={label}>وصف المنتج</label>
-                <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
-                  {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
-                </button>
-              </div>
-              <textarea
-                  placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  style={textarea}
-              />
-              {images.length > 0 && (
-                  <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>
-                    💡 الـ AI سيحلل الصورة الأولى تلقائياً ويضيف السعر بالوصف
-                  </p>
-              )}
-            </div>
 
             <div style={uploadSection}>
               <div style={uploadHeader}>
@@ -347,7 +317,29 @@ function CreatePost() {
             <div style={toggleCard}>
               <Toggle text="السعر قابل للتفاوض" value={priceNegotiable} setValue={setPriceNegotiable} />
             </div>
+  
 
+
+
+              <div style={fieldBlock}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label style={label}>وصف المنتج</label>
+                <button type="button" onClick={handleGenerateAI} style={aiBtn} disabled={aiLoading}>
+                  {aiLoading ? "⏳ جارٍ التوليد..." : "✨ توليد بالـ AI"}
+                </button>
+              </div>
+              <textarea
+                  placeholder="اذكر الحالة، المواصفات، سبب البيع، وأي تفاصيل مهمة للمشتري."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  style={textarea}
+              />
+              {images.length > 0 && (
+                  <p style={{ fontSize: 12, color: "#6a7b98", margin: "4px 0 0" }}>
+                    💡 الـ AI سيحلل الصورة الأولى تلقائياً ويضيف السعر بالوصف
+                  </p>
+              )}
+            </div> 
             {error && <div style={errorBox}>⚠️ {error}</div>}
 
             <button

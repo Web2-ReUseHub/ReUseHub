@@ -1,6 +1,6 @@
 const OpenAI = require("openai");
 
-const client = new OpenAI({ apiKey:"هون المفتاح بس ماترفعوه ع قيت هب رح يمنعكم ترفعوه " });
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function createEmbedding(text) {
   const response = await client.embeddings.create({
