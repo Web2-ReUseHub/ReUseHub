@@ -7,6 +7,9 @@ const { Like } = db;
 
 router.get('/', usedItemController.getUsedItems);
 router.post('/', authMiddleware, usedItemController.upload.array('images', 5), usedItemController.createUsedItem);
+
+router.get('/trending', usedItemController.getTrendingItems);
+
 router.put('/:id', authMiddleware, usedItemController.updateUsedItem);
 router.delete('/:id', authMiddleware, usedItemController.deleteUsedItem);
 

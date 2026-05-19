@@ -65,6 +65,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/products"
         element={
@@ -74,11 +75,7 @@ function App() {
         }
       />
 
-
-
-
-
-        <Route
+      <Route
         path="/requests"
         element={
           <ProtectedRoute>
@@ -86,18 +83,19 @@ function App() {
           </ProtectedRoute>
         }
       />
- <Route
-  path="/dashbord"
-  element={
-    <ProtectedRoute>
-      <AdminRoute>
-        <Dashbord />
-      </AdminRoute>
-    </ProtectedRoute>
-  }
-/>
 
-      
+
+      <Route
+        path="/dashbord"
+        element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <Dashbord />
+            </AdminRoute>
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 }

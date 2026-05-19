@@ -1,42 +1,85 @@
-const { UsedItem, Request, User, Category, Favorite, Report } = require("../models");
+const { User, UsedItem, Fav, Req, Report } = require("../models");
+const { Op } = require("sequelize");
 
-exports.getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res) => {
   try {
-    const totalRequests = await Request.count();
-    const buyerRequests = await Request.count({ where: { type: "buyer" } });
-    const sellerRequests = await Request.count({ where: { type: "seller" } });
-    const acceptedRequests = await Request.count({ where: { status: "accepted" } });
-    const rejectedRequests = await Request.count({ where: { status: "rejected" } });
+    // ── أعداد أساسية ──────────────────────────────────────────
+    const usersCount            = await User.count();
+    const itemsCount            = await UsedItem.count();
+    const requestsCount         = await Req.count();
+    const acceptedRequestsCount = await Req.count({ where: { status: "accepted" } });
 
-    const soldItems = await UsedItem.count({ where: { is_sold: true } });
-    const favoritesCount = await Favorite.count();
-    const activeSellers = await User.count({ where: { role: "seller", is_active: true } });
-    const newUsersToday = await User.count({
-      where: { created_at: { [Op.gte]: new Date().setHours(0, 0, 0, 0) } }
+    // تأكد أيهم صح بجدولك: is_sold: true  أو  status: "sold"
+    const soldItemsCount        = await UsedItem.count({ where: { status: "sold" } });
+
+    const favoritesCount        = await Fav.count();
+
+    // ── البائعون النشطون (عندهم منتجات منشورة) ─────────────────
+    const activeSellersCount    = await User.count({
+      include: [{ model: UsedItem, as: "posts" }],
+      distinct: true,
     });
 
-    const categoriesCount = await Category.count();
-    const newPostsToday = await UsedItem.count({
-      where: { created_at: { [Op.gte]: new Date().setHours(0, 0, 0, 0) } }
-    });
-    const pendingReports = await Report.count({ where: { status: "pending" } });
+    // ── مستخدمون جدد ───────────────────────────────────────────
+    let newUsersToday = 0;
+    let newUsersWeek  = 0;
+
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      // إذا Sequelize بيستخدم created_at غيّر createdAt لـ created_at
+      newUsersToday = await User.count({ where: { createdAt: { [Op.gte]: today } } });
+      newUsersWeek  = await User.count({ where: { createdAt: { [Op.gte]: weekAgo } } });
+    } catch (dateErr) {
+      console.warn("Could not fetch date-based stats:", dateErr.message);
+    }
+
+    // ── منتجات جديدة اليوم ─────────────────────────────────────
+    let newPostsToday = 0;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      newPostsToday = await UsedItem.count({ where: { createdAt: { [Op.gte]: today } } });
+    } catch (dateErr) {
+      console.warn("Could not fetch newPostsToday:", dateErr.message);
+    }
+
+    // ── البلاغات ───────────────────────────────────────────────
+    // إذا عندك model اسمه Report أو مختلف، غيّر هون
+    let reportsCount = 0;
+    try {
+      reportsCount = await Report.count({ where: { status: "pending" } });
+    } catch (reportErr) {
+      console.warn("Could not fetch reports:", reportErr.message);
+    }
+
+    const loginsToday = 0; // أضف logic لما يكون عندك جدول sessions
 
     res.json({
-      totalRequests,
-      buyerRequests,
-      sellerRequests,
-      acceptedRequests,
-      rejectedRequests,
-      soldItems,
+      usersCount,
+      itemsCount,
+      requestsCount,
+      acceptedRequestsCount,
+      soldItemsCount,
       favoritesCount,
-      activeSellers,
+      activeSellersCount,
       newUsersToday,
-      categoriesCount,
+      newUsersWeek,
       newPostsToday,
-      pendingReports
+      loginsToday,
+      reportsCount,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "حدث خطأ أثناء جلب بيانات لوحة التحكم" });
+    console.error("DASHBOARD ERROR:", error);
+    res.status(500).json({
+      error: "Failed to fetch dashboard stats",
+      details: error.message,
+    });
   }
 };
+
+module.exports = { getDashboardStats };

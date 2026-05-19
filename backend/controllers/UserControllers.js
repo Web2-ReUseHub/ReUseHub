@@ -5,10 +5,7 @@ const SECRET = "***REMOVED***";
 
 exports.profile = async (req, res) => {
   try {
-    res.json({
-      message: "Welcome to protected profile",
-      user: req.user,
-    });
+    res.json({ message: "Welcome to protected profile", user: req.user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -31,8 +28,8 @@ exports.updateProfile = async (req, res) => {
     const { f_name, l_name, phone, city, bio, username, avatar_url } = req.body;
 
     await db.User.update(
-        { f_name, l_name, phone, address: city, city, bio, username, avatar_url },
-        { where: { user_id: req.user.user_id } }
+      { f_name, l_name, phone, address: city, city, bio, username, avatar_url },
+      { where: { user_id: req.user.user_id } }
     );
 
     const updatedUser = await db.User.findByPk(req.user.user_id, {
@@ -63,9 +60,7 @@ exports.getUserById = async (req, res) => {
     const user = await db.User.findByPk(id, {
       attributes: { exclude: ["password"] },
     });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (error) {
     console.error("REAL ERROR:", error);
@@ -75,7 +70,7 @@ exports.getUserById = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    console.log('REGISTER body:', req.body);
+    console.log("REGISTER body:", req.body);
     const { f_name, l_name, email, password, phone, address } = req.body || {};
 
     if (!f_name || !email || !password) {
@@ -85,9 +80,8 @@ exports.register = async (req, res) => {
     }
 
     const existingUser = await db.User.findOne({ where: { email } });
-    if (existingUser) {
+    if (existingUser)
       return res.status(400).json({ message: "Email already exists" });
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await db.User.create({
@@ -116,24 +110,20 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ message: "Email and password are required" });
-    }
 
     const user = await db.User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
+    if (!isPasswordCorrect)
       return res.status(400).json({ message: "Wrong password" });
-    }
 
     const token = jwt.sign(
-        { user_id: user.user_id, email: user.email },
-        SECRET,
-        { expiresIn: "1h" }
+      { user_id: user.user_id, email: user.email },
+      SECRET,
+      { expiresIn: "1h" }
     );
 
     res.json({
@@ -146,10 +136,43 @@ exports.login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
     console.error("REAL ERROR:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getUserStats = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const totalPosts = await db.UsedItem.count({ where: { seller_id: id } });
+
+    const completedDeals = await db.UsedItem.count({
+      where: { seller_id: id, is_sold: 1 },
+    });
+
+    const successRate =
+      totalPosts > 0 ? Math.round((completedDeals / totalPosts) * 100) : 0;
+
+    const ratingCount = await db.Req.count({
+      include: [
+        {
+          model: db.UsedItem,
+          as: "product",
+          required: true,
+          where: { seller_id: id },
+        },
+      ],
+      where: { rating: { [db.Sequelize.Op.ne]: null } },
+    });
+
+    res.json({ completedDeals, successRate, totalPosts, ratingCount });
+  } catch (error) {
+    console.error("STATS ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };

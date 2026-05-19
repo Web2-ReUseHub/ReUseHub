@@ -93,7 +93,7 @@ useEffect(() => {
                         id="price1"
                       />
                       <label className="form-check-label" htmlFor="price1">
-                        0 - 100
+                        0-500
                       </label>
                     </div>
 
@@ -104,7 +104,7 @@ useEffect(() => {
                         id="price2"
                       />
                       <label className="form-check-label" htmlFor="price2">
-                        100 - 200
+                       500-1500
                       </label>
                     </div>
 
@@ -115,7 +115,7 @@ useEffect(() => {
                         id="price3"
                       />
                       <label className="form-check-label" htmlFor="price3">
-                        200 - 300
+                        1500-4000
                       </label>
                     </div>
 
@@ -126,7 +126,7 @@ useEffect(() => {
                         id="price4"
                       />
                       <label className="form-check-label" htmlFor="price4">
-                        أكثر من 300
+                        4000+
                       </label>
                     </div>
                   </div>
@@ -155,7 +155,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="mb-4">
+                  {/*<div className="mb-4">
                     <h5 className="text-end">تقييم البائع</h5>
                     <div className="rating text-center">
                       <input type="radio" id="star1" name="rating" value="1" />
@@ -183,7 +183,7 @@ useEffect(() => {
                         <i className="fas fa-star"></i>
                       </label>
                     </div>
-                  </div>
+                  </div>*/}
                 </div>
               </div>
             </div>

@@ -1,22 +1,24 @@
 {
   "development": {
     "username": "root",
-    "password": "mahadham123654@",
-    "database": "web2",
+    "password": "***REMOVED***",
+    "database": "reuse_hub",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
+
   "test": {
     "username": "root",
     "password": "***REMOVED***",
-    "database": "reusehub",
+    "database": "reuse_hub",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
+
   "production": {
     "username": "root",
     "password": "***REMOVED***",
-    "database": "reusehub",
+    "database": "reuse_hub",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
