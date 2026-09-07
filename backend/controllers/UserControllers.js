@@ -1,7 +1,8 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const SECRET = "***REMOVED***";
+require("dotenv").config();
+const SECRET = process.env.JWT_SECRET;
 
 exports.profile = async (req, res) => {
   try {

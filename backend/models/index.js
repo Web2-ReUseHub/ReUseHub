@@ -7,7 +7,7 @@ const basename = path.basename(__filename);
 const db = {};
 
 // قراءة إعدادات قاعدة البيانات من config/config.json
-const config = require('../config/config.json');
+const config = require('../config/config.js');
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
 
